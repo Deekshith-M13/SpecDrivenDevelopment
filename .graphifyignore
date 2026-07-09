@@ -1,0 +1,6 @@
+# .graphifyignore — place in moviesite root
+target/
+.mvn/
+*.class
+*.jar
+graphify-out/

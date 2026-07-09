@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Repo Impact Analysis & Regression Agent Architecture</title>
+<style>
+:root {
+  --ink:      #0f1117;
+  --ink2:     #3a3d4a;
+  --ink3:     #6b6f7e;
+  --surface:  #ffffff;
+  --s2:       #f5f6f8;
+  --s3:       #edeef2;
+  --border:   #dddfe6;
+  --teal:     #0f6e56;
+  --teal-l:   #e1f5ee;
+  --teal-m:   #1d9e75;
+  --purple:   #534ab7;
+  --purple-l: #eeedfe;
+  --amber:    #854f0b;
+  --amber-l:  #faeeda;
+  --amber-m:  #ef9f27;
+  --coral:    #993c1d;
+  --coral-l:  #faece7;
+  --blue:     #185fa5;
+  --blue-l:   #e6f1fb;
+  --red:      #a32d2d;
+  --red-l:    #fcebeb;
+  --green:    #3b6d11;
+  --green-l:  #eaf3de;
+  --mono: 'JetBrains Mono','Fira Code',monospace;
+  --sans: 'Inter',system-ui,-apple-system,sans-serif;
+  --r: 8px; --rl: 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-size:15px;line-height:1.65}
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;height:52px;overflow-x:auto;gap:0}
+nav a{text-decoration:none;color:var(--ink3);font-size:13px;font-weight:500;padding:0 13px;height:52px;display:flex;align-items:center;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+nav a:hover{color:var(--ink)}
+nav a.active{color:var(--teal);border-bottom-color:var(--teal)}
+.nav-brand{font-weight:700;font-size:14px;color:var(--ink);margin-right:1.5rem;white-space:nowrap}
+.page{max-width:980px;margin:0 auto;padding:0 2rem 6rem}
+.hero{padding:4rem 0 3rem;border-bottom:1px solid var(--border);margin-bottom:3rem}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);background:var(--teal-l);border:1px solid #9fe1cb;padding:4px 12px;border-radius:100px;margin-bottom:1.2rem}
+h1{font-size:clamp(1.7rem,3.5vw,2.6rem);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:.9rem}
+h1 span{color:var(--teal)}
+.hero-sub{font-size:16px;color:var(--ink2);max-width:620px;line-height:1.7;margin-bottom:1.5rem}
+.hero-pills{display:flex;gap:.6rem;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;border:1px solid}
+.pill-teal{background:var(--teal-l);color:var(--teal);border-color:#9fe1cb}
+.pill-purple{background:var(--purple-l);color:var(--purple);border-color:#c4bff0}
+.pill-amber{background:var(--amber-l);color:var(--amber);border-color:#f5c96a}
+.pill-coral{background:var(--coral-l);color:var(--coral);border-color:#f0a07a}
+.pill-blue{background:var(--blue-l);color:var(--blue);border-color:#9ec8f0}
+.section{margin-bottom:3.5rem;scroll-margin-top:64px}
+.section-label{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem}
+h2{font-size:1.45rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.9rem}
+h3{font-size:1.05rem;font-weight:650;letter-spacing:-.01em;margin:1.6rem 0 .5rem}
+p{margin-bottom:.8rem;color:var(--ink2)}
+hr.div{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+pre{background:#0f1117;color:#c9d1d9;border-radius:var(--r);padding:1.1rem 1.3rem;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;margin:.8rem 0}
+code{font-family:var(--mono);font-size:12.5px;background:var(--s3);border:1px solid var(--border);padding:1px 6px;border-radius:4px}
+pre code{background:none;border:none;padding:0;color:inherit}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.cmt{color:#6e7781}.fn{color:#d2a8ff}.val{color:#79c0ff}.tg{color:#7ee787}
+
+/* problem cards */
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.2rem 0}
+.prob-card{border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px;background:var(--surface)}
+.prob-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-bottom:10px}
+.prob-card h4{font-size:13px;font-weight:650;margin-bottom:6px}
+.prob-card p{font-size:12.5px;color:var(--ink3);margin:0}
+
+/* repo stack */
+.repo-stack{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.2rem 0}
+.repo-card{border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px}
+.repo-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.repo-card h4{font-size:14px;font-weight:650;margin-bottom:6px}
+.repo-card ul{list-style:none;font-size:12.5px;color:var(--ink3);line-height:1.8}
+
+/* layer cards */
+.layer{border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin:1.2rem 0}
+.layer-hd{display:flex;align-items:center;gap:14px;padding:16px 22px;background:var(--s2);border-bottom:1px solid var(--border)}
+.layer-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.layer-hd h3{margin:0;font-size:14px}
+.layer-hd p{margin:0;font-size:12px;color:var(--ink3)}
+.layer-body{padding:18px 22px}
+
+/* tool table */
+.tool-table{width:100%;border-collapse:collapse;font-size:13px;margin:1.2rem 0;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.tool-table th{background:var(--s2);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);border-bottom:1px solid var(--border)}
+.tool-table td{padding:11px 14px;border-bottom:1px solid var(--s3);color:var(--ink2);vertical-align:top;line-height:1.5}
+.tool-table tr:last-child td{border-bottom:none}
+.tool-table td:first-child{font-weight:600;color:var(--ink);white-space:nowrap}
+
+/* agent cards */
+.agent-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin:1.2rem 0}
+.agent-card{border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px}
+.agent-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.agent-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.agent-name{font-size:14px;font-weight:650}
+.agent-role{font-size:11px;color:var(--ink3);font-weight:500}
+.agent-tools{margin-top:10px;display:flex;flex-wrap:wrap;gap:5px}
+.atool{font-size:11px;padding:2px 7px;border-radius:4px;background:var(--s3);color:var(--ink3);font-family:var(--mono)}
+
+/* pipeline steps */
+.pipeline{display:flex;flex-direction:column;gap:0;margin:1.2rem 0;position:relative}
+.pipeline::before{content:'';position:absolute;left:19px;top:20px;bottom:20px;width:2px;background:linear-gradient(to bottom,var(--teal-m),var(--purple));border-radius:2px}
+.pipe-step{display:flex;gap:16px;align-items:flex-start;padding:12px 0;position:relative}
+.pipe-n{width:40px;height:40px;border-radius:50%;background:var(--surface);border:2px solid var(--teal-m);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--teal);flex-shrink:0;z-index:1}
+.pipe-n.late{border-color:var(--purple);color:var(--purple)}
+.pipe-content{flex:1;padding-top:8px}
+.pipe-title{font-size:14px;font-weight:650;color:var(--ink);margin-bottom:3px}
+.pipe-desc{font-size:13px;color:var(--ink3);line-height:1.5}
+.pipe-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+.tag-auto{background:var(--blue-l);color:var(--blue)}
+.tag-agent{background:var(--purple-l);color:var(--purple)}
+.tag-human{background:var(--amber-l);color:var(--amber)}
+.tag-gate{background:var(--red-l);color:var(--red)}
+
+/* callout */
+.callout{border-left:3px solid;border-radius:0 var(--r) var(--r) 0;padding:13px 17px;margin:1rem 0;font-size:13.5px;line-height:1.6}
+.ct{border-color:var(--teal-m);background:var(--teal-l);color:#085041}
+.ca{border-color:var(--amber-m);background:var(--amber-l);color:#633806}
+.cp{border-color:var(--purple);background:var(--purple-l);color:#3c3489}
+.cr{border-color:#d05050;background:var(--red-l);color:var(--red)}
+
+/* hash manifest */
+.hash-box{background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.2rem;font-family:var(--mono);font-size:12.5px;line-height:1.8;margin:.8rem 0;color:var(--ink2)}
+.hk{color:var(--teal)}.hv{color:var(--purple)}.hc{color:var(--ink3)}
+
+/* ref list */
+.ref-list{list-style:none;display:flex;flex-direction:column;gap:7px;margin:1rem 0}
+.ref-list li{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.ref-num{width:20px;height:20px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--ink3);flex-shrink:0;margin-top:1px}
+.ref-list a{color:var(--blue);text-decoration:none}
+.ref-list a:hover{text-decoration:underline}
+
+/* decision table */
+.dtable{display:grid;grid-template-columns:180px 1fr;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin:1.2rem 0;font-size:13px}
+.dl{background:var(--s2);padding:13px 16px;font-weight:600;border-right:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center}
+.dr{padding:13px 16px;color:var(--ink2);border-bottom:1px solid var(--border);line-height:1.55}
+.dl:last-of-type,.dr:last-child{border-bottom:none}
+
+footer{margin-top:4rem;padding:1.5rem 0;border-top:1px solid var(--border);font-size:12px;color:var(--ink3);text-align:center}
+@media(max-width:640px){.prob-grid,.repo-stack,.agent-grid{grid-template-columns:1fr}.dtable{grid-template-columns:1fr}.dl{border-right:none;border-bottom:none;border-top:1px solid var(--border)}.dl:first-child{border-top:none}.page{padding:0 1rem 4rem}.hero{padding:2rem 0 1.5rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">Impact &amp; Regression Blueprint</span>
+  <a href="#overview" class="active">Overview</a>
+  <a href="#problem">3 Problems</a>
+  <a href="#stack">Tool stack</a>
+  <a href="#impact">Problem 1 — Impact</a>
+  <a href="#regression">Problem 2 — Regression</a>
+  <a href="#delta">Problem 3 — Delta index</a>
+  <a href="#agents">Agent design</a>
+  <a href="#pipeline">CI pipeline</a>
+  <a href="#refs">References</a>
+</nav>
+
+<div class="page">
+
+<!-- HERO -->
+<section class="hero" id="overview">
+  <div class="eyebrow">Engineering Blueprint · June 2026</div>
+  <h1>Multi-Repo <span>Impact Analysis</span><br>& Regression Agent Architecture</h1>
+  <p class="hero-sub">A complete plan for three codebases — React/Next.js frontend, BFF Node.js, and Salesforce B2B Commerce with Apex — where any code change automatically identifies impacted areas, maps regression tests, and updates indexes incrementally.</p>
+  <div class="hero-pills">
+    <span class="pill pill-teal">React / Next.js</span>
+    <span class="pill pill-blue">BFF Node.js</span>
+    <span class="pill pill-amber">Salesforce Apex</span>
+    <span class="pill pill-purple">Graphify + code-review-graph</span>
+    <span class="pill pill-coral">Claude Code agents</span>
+  </div>
+</section>
+
+<!-- THREE PROBLEMS -->
+<section class="section" id="problem">
+  <span class="section-label">Problem definition</span>
+  <h2>Three distinct problems — one unified solution</h2>
+
+  <div class="prob-grid">
+    <div class="prob-card">
+      <div class="prob-num" style="background:var(--teal-l);color:var(--teal)">P1</div>
+      <h4>Impact discovery</h4>
+      <p>Developer changes cart calculation Apex class or a shared React component — what else breaks? Find all impacted files, classes, APIs across all three repos before committing.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num" style="background:var(--amber-l);color:var(--amber)">P2</div>
+      <h4>Regression test mapping</h4>
+      <p>Given a code change, which specific API tests in the regression suite must run? Create the link between changed code and the regression APIs that cover it.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num" style="background:var(--purple-l);color:var(--purple)">P3</div>
+      <h4>Delta index freshness</h4>
+      <p>When a developer commits, update only what changed using SHA-256 content hashing — not a full re-index. Both Graphify and code-review-graph must stay current incrementally.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- REPO STACK -->
+<section class="section" id="stack">
+  <span class="section-label">Codebase context</span>
+  <h2>Three repos — one cross-repo knowledge graph</h2>
+
+  <div class="repo-stack">
+    <div class="repo-card">
+      <div class="repo-tag" style="color:var(--teal)">Frontend</div>
+      <h4>React / Next.js</h4>
+      <ul>
+        <li>Product Display Page (PDP)</li>
+        <li>Cart &amp; checkout UI</li>
+        <li>Shared component library</li>
+        <li>Custom hooks (useCart, useProduct)</li>
+        <li>.tsx .jsx .ts files</li>
+      </ul>
+    </div>
+    <div class="repo-card">
+      <div class="repo-tag" style="color:var(--blue)">BFF</div>
+      <h4>Node.js BFF</h4>
+      <ul>
+        <li>API aggregation layer</li>
+        <li>Salesforce Commerce API calls</li>
+        <li>Session management</li>
+        <li>Price &amp; cart calculation</li>
+        <li>.js .ts .json files</li>
+      </ul>
+    </div>
+    <div class="repo-card">
+      <div class="repo-tag" style="color:var(--amber)">Backend</div>
+      <h4>Salesforce B2B + Apex</h4>
+      <ul>
+        <li>CartCalculator Apex class</li>
+        <li>Product &amp; pricing triggers</li>
+        <li>B2B Commerce flows</li>
+        <li>SOQL/DML operations</li>
+        <li>.cls .trigger .xml files</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The cross-repo dependency chain</h3>
+  <pre><code>React PDP component
+  → calls BFF endpoint  <span class="cmt">// HTTP_CALLS edge</span>
+    → BFF calls SCAPI / Salesforce API
+      → Apex CartCalculator.calculate()
+        → triggers PricingRule__c update
+          → fires CartValidation trigger
+            → updates Order summary
+
+<span class="cmt">// A change to CartCalculator propagates upward through this entire chain.</span>
+<span class="cmt">// Without a cross-repo graph, a developer has no way to see the full blast radius.</span></code></pre>
+
+  <h3>Tool stack per layer</h3>
+  <table class="tool-table">
+    <thead>
+      <tr><th>Problem layer</th><th>Tool</th><th>What it provides</th><th>Scope</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Structural navigation</td><td>Graphify</td><td>Community map, god nodes, cross-repo edges</td><td>All 3 repos</td></tr>
+      <tr><td>Blast-radius traversal</td><td>code-review-graph (CRG)</td><td>File + function level impact, SHA-256 incremental</td><td>All 3 repos</td></tr>
+      <tr><td>Semantic search</td><td>CocoIndex</td><td>Find code by meaning — "cart calculation logic"</td><td>All 3 repos</td></tr>
+      <tr><td>Deep Apex/SOQL analysis</td><td>PMD + SFDX Scanner</td><td>Apex call graph, trigger dependencies, DML paths</td><td>Salesforce repo</td></tr>
+      <tr><td>Test-to-code mapping</td><td>Custom manifest + CRG</td><td>Links API tests to the code they cover</td><td>All 3 repos</td></tr>
+      <tr><td>Agent orchestration</td><td>Claude Code</td><td>Queries all tools, synthesises impact report</td><td>All 3 repos</td></tr>
+      <tr><td>CI enforcement</td><td>GitHub Actions</td><td>Runs impact agent on every PR automatically</td><td>All 3 repos</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="div">
+
+<!-- PROBLEM 1: IMPACT -->
+<section class="section" id="impact">
+  <span class="section-label">Problem 1</span>
+  <h2>Impact discovery — find all affected areas before commit</h2>
+
+  <div class="layer">
+    <div class="layer-hd">
+      <div class="layer-num" style="background:var(--teal-l);color:var(--teal)">1</div>
+      <div><h3>Cross-repo knowledge graph</h3><p>Graphify merges all three repos into one graph · HTTP_CALLS edges connect React → BFF → Apex</p></div>
+    </div>
+    <div class="layer-body">
+      <p>The key capability needed here is a graph that spans all three repos so that changing <code>CartCalculator.cls</code> in Salesforce can be traced forward through the BFF to the React cart component. Graphify's <code>--merge-graphs</code> and cross-repo merge capability enables this.</p>
+
+      <h3>Step 1 — Build merged cross-repo graph</h3>
+      <pre><code><span class="cmt"># Build graph for each repo separately</span>
+<span class="fn">graphify</span> /repos/react-storefront --no-llm --backend claude-cli
+<span class="fn">graphify</span> /repos/bff-nodejs --no-llm --backend claude-cli
+<span class="fn">graphify</span> /repos/salesforce-b2b --no-llm --backend claude-cli
+
+<span class="cmt"># Merge all three into one cross-repo graph</span>
+<span class="fn">graphify</span> merge-graphs \
+  /repos/react-storefront/graphify-out/graph.json \
+  /repos/bff-nodejs/graphify-out/graph.json \
+  /repos/salesforce-b2b/graphify-out/graph.json \
+  --output /shared/cross-repo-graph.json
+
+<span class="cmt"># Every node carries a repo tag so you can filter by origin</span></code></pre>
+
+      <h3>Step 2 — Build CRG index for each repo</h3>
+      <pre><code><span class="fn">code-review-graph</span> build --path /repos/react-storefront
+<span class="fn">code-review-graph</span> build --path /repos/bff-nodejs
+<span class="fn">code-review-graph</span> build --path /repos/salesforce-b2b</code></pre>
+
+      <h3>Step 3 — Developer queries impact before committing</h3>
+      <p>Inside Claude Code, developer types:</p>
+      <pre><code><span class="str">"I am about to change CartCalculator.cls in the Salesforce repo —
+specifically the calculateDiscount() method. Using the cross-repo
+knowledge graph at /shared/cross-repo-graph.json, find every file,
+class, API endpoint, and React component that could be impacted.
+Show me: (1) direct dependents, (2) transitive dependents up to
+3 hops, (3) which repos each impact is in, (4) risk level."</span></code></pre>
+
+      <p>The Impact Finder Agent (see Agent Design section) handles this query by calling Graphify and CRG tools, traversing the merged graph, and returning a structured impact report.</p>
+
+      <h3>Example impact report output</h3>
+      <pre><code>## Impact Report: CartCalculator.cls → calculateDiscount()
+
+### Direct dependents [Salesforce repo]
+- CartValidation.trigger        CALLS calculateDiscount()
+- OrderSummaryHelper.cls        CALLS calculateDiscount()
+- PricingRule__c trigger        LISTENS to cart update
+
+### Transitive dependents [BFF repo — hop 2]
+- bff/services/cartService.js   calls Salesforce CartAPI
+- bff/routes/cart.js            exposes /api/v1/cart endpoint
+
+### Transitive dependents [React repo — hop 3]
+- components/Cart/CartSummary.tsx   fetches /api/v1/cart
+- components/Cart/CartDrawer.tsx    imports CartSummary
+- pages/checkout.tsx                renders CartSummary
+
+### Impacted API endpoints
+- GET  /api/v1/cart
+- POST /api/v1/cart/calculate
+- POST /api/v1/checkout/validate
+
+### Risk level: HIGH
+Reason: CartSummary is rendered on 3 pages including checkout.
+CartDrawer is a shared component used in header and cart page.
+
+### Recommended tests
+- CartCalculator unit tests (Apex)
+- Cart API integration tests
+- Checkout E2E regression suite</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- PROBLEM 2: REGRESSION -->
+<section class="section" id="regression">
+  <span class="section-label">Problem 2</span>
+  <h2>Regression test mapping — link code changes to API tests</h2>
+
+  <div class="layer">
+    <div class="layer-hd">
+      <div class="layer-num" style="background:var(--amber-l);color:var(--amber)">2</div>
+      <div><h3>Test-to-code manifest + Regression Mapper Agent</h3><p>Build a bidirectional map: code file → API tests that cover it</p></div>
+    </div>
+    <div class="layer-body">
+
+      <h3>The test manifest — the linking layer</h3>
+      <p>The core data structure is a JSON manifest that maps every API test to the code files it exercises. This is built once and updated incrementally on code changes.</p>
+
+      <div class="hash-box">
+        <span class="hc">// test-manifest.json</span><br>
+        {<br>
+        &nbsp;&nbsp;<span class="hk">"tests"</span>: [<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hk">"id"</span>: <span class="hv">"TC-CART-001"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hk">"name"</span>: <span class="hv">"Cart discount calculation"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hk">"endpoint"</span>: <span class="hv">"POST /api/v1/cart/calculate"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hk">"covers_files"</span>: [<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hv">"salesforce/CartCalculator.cls"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hv">"bff/services/cartService.js"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hv">"bff/routes/cart.js"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hk">"sha256_at_map_time"</span>: {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hv">"salesforce/CartCalculator.cls"</span>: <span class="hv">"a3f92b1c..."</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hv">"bff/services/cartService.js"</span>: <span class="hv">"7e4d8a12..."</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+        &nbsp;&nbsp;]<br>
+        }
+      </div>
+
+      <h3>How the manifest is built — three sources</h3>
+      <p><strong>Source 1 — Static analysis:</strong> CRG blast-radius traversal from each test file to the production code it imports or calls. This covers unit and integration tests where imports are explicit.</p>
+      <p><strong>Source 2 — API route matching:</strong> Each API test declares the endpoint it hits. The BFF route files expose those endpoints. Graphify's HTTP_CALLS edges connect <code>POST /api/v1/cart/calculate</code> → <code>bff/routes/cart.js</code> → <code>bff/services/cartService.js</code> → Salesforce API call.</p>
+      <p><strong>Source 3 — AI-generated initial mapping:</strong> For the first build, the Regression Mapper Agent reads the test suite and the cross-repo graph and generates the manifest automatically.</p>
+
+      <pre><code><span class="cmt"># Build initial manifest using Claude Code agent</span>
+<span class="str">"Read the test suite at /tests/regression/ and the cross-repo graph
+at /shared/cross-repo-graph.json. For each API test, identify which
+production code files it exercises based on the endpoint it calls
+and the BFF route graph. Output as test-manifest.json"</span></code></pre>
+
+      <h3>On every commit — find which tests to run</h3>
+      <pre><code><span class="cmt"># CI script: given changed files, find required tests</span>
+CHANGED=$(git diff --name-only HEAD~1 HEAD)
+
+<span class="cmt"># Query manifest: which tests cover these files?</span>
+python3 scripts/find_tests.py \
+  --manifest test-manifest.json \
+  --changed "$CHANGED" \
+  --output required-tests.txt
+
+<span class="cmt"># Run only those tests</span>
+jest --testPathPattern="$(cat required-tests.txt | tr '\n' '|')"
+<span class="cmt"># or newman run collection.json --folder "$(cat required-tests.txt)"</span></code></pre>
+
+      <h3>Keeping the manifest current</h3>
+      <p>When a file's SHA-256 changes and a code path changes significantly, the manifest entry for tests covering that file is marked stale. The Regression Mapper Agent reruns the mapping for affected tests only — not the full manifest.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- PROBLEM 3: DELTA INDEX -->
+<section class="section" id="delta">
+  <span class="section-label">Problem 3</span>
+  <h2>Delta index freshness — SHA-256 hash-based incremental update</h2>
+
+  <div class="layer">
+    <div class="layer-hd">
+      <div class="layer-num" style="background:var(--purple-l);color:var(--purple)">3</div>
+      <div><h3>Hash manifest + post-commit hooks</h3><p>Only files whose SHA-256 changed are re-indexed · Sub-second on typical commits</p></div>
+    </div>
+    <div class="layer-body">
+
+      <h3>The hash manifest — one per repo</h3>
+      <div class="hash-box">
+        <span class="hc">// .index/hashes.json (per repo)</span><br>
+        {<br>
+        &nbsp;&nbsp;<span class="hk">"salesforce/CartCalculator.cls"</span>: <span class="hv">"a3f92b1c4d..."</span>,<br>
+        &nbsp;&nbsp;<span class="hk">"bff/services/cartService.js"</span>: <span class="hv">"7e4d8a1234..."</span>,<br>
+        &nbsp;&nbsp;<span class="hk">"react/components/CartSummary.tsx"</span>: <span class="hv">"9f2c4b8e..."</span>,<br>
+        &nbsp;&nbsp;<span class="hk">"_last_updated"</span>: <span class="hv">"2026-06-17T10:42:00Z"</span><br>
+        }
+      </div>
+
+      <h3>The post-commit hook — runs on every commit in every repo</h3>
+      <pre><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># .git/hooks/post-commit (installed by: graphify hook install)</span>
+
+<span class="cmt"># 1. Get changed files</span>
+CHANGED=$(git diff --name-only HEAD~1 HEAD)
+
+<span class="cmt"># 2. For each file — compare blob hash to stored hash</span>
+NEEDS_REINDEX=()
+<span class="kw">while</span> read path; <span class="kw">do</span>
+  CURRENT=$(git hash-object <span class="str">"$path"</span>)
+  STORED=$(python3 -c <span class="str">"import json; d=json.load(open('.index/hashes.json')); print(d.get('$path',''))"</span>)
+  <span class="kw">if</span> [ <span class="str">"$CURRENT"</span> != <span class="str">"$STORED"</span> ]; <span class="kw">then</span>
+    NEEDS_REINDEX+=(<span class="str">"$path"</span>)
+  <span class="kw">fi</span>
+<span class="kw">done</span> <<< <span class="str">"$CHANGED"</span>
+
+<span class="cmt"># 3. Update indexes — only changed files (background, non-blocking)</span>
+<span class="kw">if</span> [ ${#NEEDS_REINDEX[@]} -gt 0 ]; <span class="kw">then</span>
+  nohup graphify update . &gt; /dev/null 2&gt;&amp;1 &amp;
+  nohup code-review-graph update &gt; /dev/null 2&gt;&amp;1 &amp;
+  <span class="fn">echo</span> <span class="str">"[index] Updating ${#NEEDS_REINDEX[@]} changed files in background"</span>
+<span class="kw">fi</span></code></pre>
+
+      <h3>Branch switch — full rebuild</h3>
+      <pre><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># .git/hooks/post-checkout</span>
+<span class="cmt"># Runs when switching branches — do a full rebuild</span>
+graphify . --no-llm --force &amp;
+code-review-graph build &amp;
+<span class="fn">echo</span> <span class="str">"[index] Full rebuild triggered for branch switch"</span></code></pre>
+
+      <h3>The update cost in practice</h3>
+      <table class="tool-table">
+        <thead><tr><th>Scenario</th><th>Graphify</th><th>code-review-graph</th><th>Total time</th></tr></thead>
+        <tbody>
+          <tr><td>1-file commit</td><td>~0.3s</td><td>~0.1s</td><td>&lt;0.5s</td></tr>
+          <tr><td>5-file commit</td><td>~1s</td><td>~0.4s</td><td>&lt;2s</td></tr>
+          <tr><td>Branch switch (full rebuild)</td><td>~30-60s</td><td>~5-15s</td><td>&lt;90s background</td></tr>
+          <tr><td>First-time full index (1000 files)</td><td>~4min</td><td>~30s</td><td>One-time only</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout ct">
+        <strong>Both tools run in the background.</strong> The developer's <code>git commit</code> returns immediately. Index updates happen in a nohup background process. The developer is never blocked waiting for re-indexing.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- AGENTS -->
+<section class="section" id="agents">
+  <span class="section-label">Agent design</span>
+  <h2>Four specialised agents — each with a single responsibility</h2>
+  <p>Each agent is a Claude Code session with a specific system prompt, a specific set of MCP tools, and a specific output format. Agents can be invoked manually by developers or automatically by CI.</p>
+
+  <div class="agent-grid">
+
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-icon" style="background:var(--teal-l)">🔍</div>
+        <div><div class="agent-name">Impact Finder Agent</div><div class="agent-role">Problem 1 — blast radius across all three repos</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2)">Given a changed file or function, traverses the cross-repo graph and returns all impacted files, classes, endpoints, and components with risk levels.</p>
+      <div class="agent-tools">
+        <span class="atool">graphify query</span>
+        <span class="atool">graphify path</span>
+        <span class="atool">CRG blast-radius</span>
+        <span class="atool">cross-repo-graph.json</span>
+      </div>
+      <pre style="margin-top:10px;font-size:11.5px"><code><span class="cmt">// Invocation in Claude Code</span>
+<span class="str">"Run impact analysis for CartCalculator.cls
+→ calculateDiscount(). Use the cross-repo graph.
+Output: affected files per repo, impacted endpoints,
+risk level, recommended tests."</span></code></pre>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-icon" style="background:var(--amber-l)">🧪</div>
+        <div><div class="agent-name">Regression Mapper Agent</div><div class="agent-role">Problem 2 — map code changes to API tests</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2)">Given changed files from the Impact Finder, queries the test manifest and returns the exact regression tests that must run. Updates the manifest when coverage changes.</p>
+      <div class="agent-tools">
+        <span class="atool">test-manifest.json</span>
+        <span class="atool">CRG coverage edges</span>
+        <span class="atool">BFF route graph</span>
+        <span class="atool">API test suite</span>
+      </div>
+      <pre style="margin-top:10px;font-size:11.5px"><code><span class="cmt">// Auto-triggered from Impact Finder output</span>
+<span class="str">"Given these changed files: [list from P1],
+find all regression tests from test-manifest.json
+that cover them. Return test IDs and commands
+to run them."</span></code></pre>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-icon" style="background:var(--purple-l)">🗂️</div>
+        <div><div class="agent-name">Delta Indexer Agent</div><div class="agent-role">Problem 3 — keep indexes fresh after every commit</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2)">Runs in CI on every PR. Computes which files changed via SHA-256 hash comparison, triggers incremental re-index of only those files across all three repos, updates the test manifest.</p>
+      <div class="agent-tools">
+        <span class="atool">git diff --name-only</span>
+        <span class="atool">git hash-object</span>
+        <span class="atool">graphify update</span>
+        <span class="atool">CRG update</span>
+      </div>
+      <pre style="margin-top:10px;font-size:11.5px"><code><span class="cmt">// Runs automatically in CI post-commit</span>
+<span class="str">"Compare current file hashes to .index/hashes.json.
+Re-index only changed files. Update test-manifest.json
+for files whose hash changed. Report: N files reindexed,
+M test mappings updated."</span></code></pre>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-icon" style="background:var(--coral-l)">📋</div>
+        <div><div class="agent-name">PR Review Agent</div><div class="agent-role">Orchestrator — combines all three agents per PR</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2)">Triggered on every GitHub PR. Runs Impact Finder → Regression Mapper → Delta Indexer in sequence and posts a unified impact + test report as a PR comment.</p>
+      <div class="agent-tools">
+        <span class="atool">Impact Finder</span>
+        <span class="atool">Regression Mapper</span>
+        <span class="atool">Delta Indexer</span>
+        <span class="atool">GitHub API</span>
+      </div>
+      <pre style="margin-top:10px;font-size:11.5px"><code><span class="cmt">// Posted as GitHub PR comment</span>
+<span class="str">## Impact Report for PR #142
+Changed: CartCalculator.cls (calculateDiscount)
+Blast radius: 7 files across 3 repos
+Regression tests to run: TC-CART-001, TC-CHECKOUT-003
+Risk: HIGH — touches checkout flow
+Index updated: 3 files reindexed</span></code></pre>
+    </div>
+
+  </div>
+
+  <h3>Agent system prompts</h3>
+  <p>Each agent's behaviour is defined in a dedicated <code>CLAUDE.md</code> or <code>--system-prompt</code> flag in the CI step. The Impact Finder Agent system prompt specifically:</p>
+
+  <pre><code><span class="cmt"># Impact Finder Agent — system prompt</span>
+
+You are an impact analysis agent for a three-repo commerce platform:
+- React/Next.js storefront (components, hooks, pages)
+- Node.js BFF (routes, services, API aggregation)
+- Salesforce B2B with Apex (CartCalculator, triggers, flows)
+
+Cross-repo knowledge graph: /shared/cross-repo-graph.json
+Code-review-graph is available via MCP tools.
+
+<span class="kw">MANDATORY PROCESS:</span>
+1. Read cross-repo-graph.json to understand the dependency structure
+2. Use graphify query to find direct dependents of the changed symbol
+3. Use CRG blast-radius to find transitive dependents (max 3 hops)
+4. Classify each dependent: DIRECT / TRANSITIVE / POTENTIAL
+5. Identify which API endpoints are in the blast radius
+6. Assign risk: HIGH (checkout/payment), MEDIUM (cart/product), LOW (display only)
+7. Output the structured impact report format
+
+Never read raw files to discover structure. Always use graph tools first.</code></pre>
+</section>
+
+<hr class="div">
+
+<!-- CI PIPELINE -->
+<section class="section" id="pipeline">
+  <span class="section-label">CI pipeline</span>
+  <h2>Complete automated pipeline on every PR</h2>
+
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-n">1</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Developer commits code <span class="pipe-tag tag-human">Developer</span></div>
+        <div class="pipe-desc">Any file in any of the three repos. Git post-commit hook fires immediately in background — developer is not blocked.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">2</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Delta Indexer runs <span class="pipe-tag tag-auto">Auto</span></div>
+        <div class="pipe-desc">SHA-256 hash comparison against <code>.index/hashes.json</code>. Only changed files re-indexed by Graphify and CRG. Typically completes in under 2 seconds for a normal commit.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">3</div>
+      <div class="pipe-content">
+        <div class="pipe-title">PR opened → GitHub Actions triggers <span class="pipe-tag tag-auto">CI</span></div>
+        <div class="pipe-desc">GitHub Actions workflow fires on PR open and push. Checks out all three repos, confirms indexes are current, runs the PR Review Agent.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">4</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Impact Finder Agent runs <span class="pipe-tag tag-agent">Agent</span></div>
+        <div class="pipe-desc">Reads changed files from git diff. Queries cross-repo graph. Returns blast radius: direct dependents, transitive dependents up to 3 hops, impacted API endpoints, risk level.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">5</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Regression Mapper Agent runs <span class="pipe-tag tag-agent">Agent</span></div>
+        <div class="pipe-desc">Takes Impact Finder output. Queries <code>test-manifest.json</code> for all tests covering impacted files. Returns exact test IDs and run commands.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n late">6</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Targeted regression suite runs <span class="pipe-tag tag-auto">CI</span></div>
+        <div class="pipe-desc">Only the tests identified by the Regression Mapper run — not the full suite. For a cart calculation change: typically 3–8 tests, not 200. Completes in seconds not minutes.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n late">7</div>
+      <div class="pipe-content">
+        <div class="pipe-title">PR comment posted <span class="pipe-tag tag-auto">Auto</span></div>
+        <div class="pipe-desc">PR Review Agent posts the unified impact report as a GitHub PR comment. Reviewer sees: changed files, blast radius, tests run, pass/fail, risk level — before approving.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n late">8</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Merge gate <span class="pipe-tag tag-gate">Gate</span></div>
+        <div class="pipe-desc">PR cannot merge if: (a) HIGH risk with no reviewer approval, (b) regression tests failed, (c) blast radius touches checkout/payment with no QA sign-off.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>GitHub Actions workflow</h3>
+  <pre><code><span class="cmt"># .github/workflows/impact-analysis.yml</span>
+<span class="tg">name:</span> <span class="str">Impact analysis and regression mapping</span>
+<span class="tg">on:</span>
+  <span class="tg">pull_request:</span>
+    <span class="tg">types:</span> [opened, synchronize]
+
+<span class="tg">jobs:</span>
+  <span class="tg">impact-analysis:</span>
+    <span class="tg">runs-on:</span> ubuntu-latest
+    <span class="tg">steps:</span>
+      - <span class="tg">uses:</span> actions/checkout@v4
+        <span class="tg">with:</span> { fetch-depth: 0 }
+
+      - <span class="tg">name:</span> Install tools
+        <span class="tg">run:</span> |
+          pip install graphifyy code-review-graph
+          npm install -g @anthropic-ai/claude-code
+
+      - <span class="tg">name:</span> Get changed files
+        <span class="tg">run:</span> |
+          git diff --name-only origin/main...HEAD > changed_files.txt
+
+      - <span class="tg">name:</span> Run Impact Finder Agent
+        <span class="tg">env:</span>
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        <span class="tg">run:</span> |
+          claude -p \
+            --system-prompt "$(cat .claude/impact-finder-system-prompt.md)" \
+            "Analyse impact of these changed files: $(cat changed_files.txt).
+             Use the cross-repo graph. Output structured JSON." \
+            > impact-report.json
+
+      - <span class="tg">name:</span> Run Regression Mapper Agent
+        <span class="tg">run:</span> |
+          claude -p \
+            "Given this impact report: $(cat impact-report.json),
+             query test-manifest.json and return tests to run." \
+            > tests-to-run.txt
+
+      - <span class="tg">name:</span> Run targeted regression tests
+        <span class="tg">run:</span> |
+          npm run test:regression -- --filter="$(cat tests-to-run.txt)"
+
+      - <span class="tg">name:</span> Post PR comment
+        <span class="tg">uses:</span> actions/github-script@v7
+        <span class="tg">with:</span>
+          <span class="tg">script:</span> |
+            const report = require('./impact-report.json');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: formatImpactReport(report)
+            });</code></pre>
+</section>
+
+<hr class="div">
+
+<!-- DESIGN DECISIONS -->
+<section class="section">
+  <span class="section-label">Design decisions</span>
+  <h2>Key decisions and why</h2>
+
+  <div class="dtable">
+    <div class="dl">Cross-repo merged graph</div>
+    <div class="dr">A developer changing Apex code cannot see React impact without a graph that spans all three repos. Graphify's merge-graphs command produces a single traversable graph with repo tags. This is the only way to answer "what React components are affected by this Apex change?"</div>
+    <div class="dl">SHA-256 over timestamps</div>
+    <div class="dr">File timestamps change on git operations that do not change content (checkout, merge, rebase). SHA-256 content hashing is the only reliable signal that file content actually changed. Both Graphify and CRG use content hashing — this blueprint preserves that.</div>
+    <div class="dl">Test manifest as link layer</div>
+    <div class="dr">No existing tool directly maps API regression tests to source files across repos and languages. The test-manifest.json is a custom layer built once by the Regression Mapper Agent and maintained incrementally. It is the key piece that solves Problem 2.</div>
+    <div class="dl">Agents not monolithic scripts</div>
+    <div class="dr">Splitting into four agents (Impact Finder, Regression Mapper, Delta Indexer, PR Reviewer) means each can be invoked independently, improved independently, and have clear system prompts. A monolithic script would conflate concerns and be harder to maintain.</div>
+    <div class="dl">Background indexing</div>
+    <div class="dr">Both Graphify and CRG re-index in a nohup background process so git commit returns immediately. Developer experience is zero-latency — the index catches up within seconds without blocking the workflow.</div>
+    <div class="dl">Targeted tests not full suite</div>
+    <div class="dr">Running 200 regression tests on every PR is slow and creates alert fatigue. The Regression Mapper runs only tests linked to the blast radius — typically 3–15 tests. This makes CI fast enough to be useful rather than a bottleneck.</div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- REFERENCES -->
+<section class="section" id="refs">
+  <span class="section-label">References</span>
+  <h2>Tools and documentation</h2>
+
+  <h3>Graph indexing tools</h3>
+  <ul class="ref-list">
+    <li><div class="ref-num">1</div><div><a href="https://github.com/safishamsi/graphify" target="_blank">Graphify — safishamsi/graphify</a><br>Knowledge graph builder. Cross-repo merge, community detection, Leiden clustering, MCP server.</div></li>
+    <li><div class="ref-num">2</div><div><a href="https://github.com/tirth8205/code-review-graph" target="_blank">code-review-graph — tirth8205/code-review-graph</a><br>Local-first blast-radius graph. SHA-256 incremental updates. 25 MCP tools. Sub-second re-index.</div></li>
+    <li><div class="ref-num">3</div><div><a href="https://cocoindex.io/cocoindex-code/" target="_blank">CocoIndex Code — semantic search MCP</a><br>AST-aware semantic code search. Tree-sitter chunking. 70% fewer tokens per agent turn.</div></li>
+    <li><div class="ref-num">4</div><div><a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank">Codebase-Memory — DeusData/codebase-memory-mcp</a><br>158-language knowledge graph. 14 MCP tools. Cross-service HTTP route tracing.</div></li>
+  </ul>
+
+  <h3>Salesforce-specific analysis</h3>
+  <ul class="ref-list">
+    <li><div class="ref-num">5</div><div><a href="https://pmd.github.io/latest/pmd_userdocs_apex.html" target="_blank">PMD Apex static analysis</a><br>Apex call graph, unused code detection, naming rules. Integrates with CI.</div></li>
+    <li><div class="ref-num">6</div><div><a href="https://developer.salesforce.com/tools/salesforcecli" target="_blank">Salesforce CLI (SFDX) — developer.salesforce.com</a><br>SFDX Scanner for Apex security and dependency analysis.</div></li>
+    <li><div class="ref-num">7</div><div><a href="https://github.com/forcedotcom/sfdx-scanner" target="_blank">SFDX Scanner — forcedotcom/sfdx-scanner</a><br>PMD + ESLint + RetireJS for Apex, LWC, and Aura. CI-ready.</div></li>
+  </ul>
+
+  <h3>CI and agent orchestration</h3>
+  <ul class="ref-list">
+    <li><div class="ref-num">8</div><div><a href="https://code.claude.com/docs/en/overview" target="_blank">Claude Code documentation — code.claude.com</a><br>Agent CLI, hooks, MCP integration, CLAUDE.md, -p headless mode.</div></li>
+    <li><div class="ref-num">9</div><div><a href="https://docs.github.com/en/actions" target="_blank">GitHub Actions documentation</a><br>Workflow triggers, secrets, PR comment API, matrix builds.</div></li>
+    <li><div class="ref-num">10</div><div><a href="https://aws.amazon.com/blogs/containers/deploying-model-context-protocol-mcp-servers-on-amazon-ecs/" target="_blank">Deploying MCP servers on AWS ECS — AWS Blog</a><br>For cloud-hosted shared graph server accessible to all developers.</div></li>
+  </ul>
+
+  <h3>Architecture references from this conversation</h3>
+  <ul class="ref-list">
+    <li><div class="ref-num">11</div><div><strong>Delta-Aware Spec-Driven Architecture</strong> (earlier in this session)<br>OpenSpec delta specs, SHA-256 hash stamps, blast-radius analysis, speckit.analyze CI gate.</div></li>
+    <li><div class="ref-num">12</div><div><strong>SFRA → SFN migration analysis</strong> (earlier in this session)<br>sessionBridge.js, Cart.js extension pattern, hooks.json, services.xml — used as the concrete example throughout.</div></li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <p>Multi-Repo Impact Analysis &amp; Regression Agent Architecture · React/Next.js + BFF Node.js + Salesforce B2B Apex · June 2026</p>
+  <p style="margin-top:5px">Graphify · code-review-graph · CocoIndex · Claude Code agents · GitHub Actions</p>
+</footer>
+
+<script>
+const secs = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('nav a[href^="#"]');
+new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      const id = e.target.id;
+      links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#'+id));
+    }
+  });
+},{rootMargin:'-20% 0px -70% 0px'}).observe;
+secs.forEach(s => new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting){
+    const id=entries[0].target.id;
+    links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id));
+  }
+},{rootMargin:'-20% 0px -70% 0px'}).observe(s));
+</script>
+</body>
+</html>

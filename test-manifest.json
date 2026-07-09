@@ -1,0 +1,755 @@
+{
+  "generated": "2026-06-19",
+  "project": "MovieVerse",
+  "sha_algorithm": "git-hash-object",
+  "tool_sources": [
+    "graphify query (BFS structural traversal)",
+    "ccc semantic search (CocoIndex)",
+    "git hash-object (verified batch)",
+    "graphify-out/GRAPH_REPORT.md (god-node risk scoring)",
+    "direct source reads (TicketingService, TicketingRepository, TicketingController, Booking, BookingRequest, GlobalExceptionHandler, TicketingServiceTest, MovieVerseIntegrationTest)"
+  ],
+  "risk_legend": {
+    "HIGH": "God node (top-10 by edges in GRAPH_REPORT.md), common/exception layer, or common/response layer",
+    "MEDIUM": "Service, repository, or controller layer — single-domain blast radius",
+    "LOW": "Model, DTO, enum, config, or entry-point — no business logic"
+  },
+  "test_classes": {
+    "unit": [
+      "com.movieverse.MovieServiceTest",
+      "com.movieverse.RatingServiceTest",
+      "com.movieverse.TicketingServiceTest"
+    ],
+    "integration": [
+      "com.movieverse.MovieVerseIntegrationTest"
+    ]
+  },
+  "files": [
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/MovieVerseApplication.java",
+      "sha": "42085ec35d216869ece34ed43e46668a081e28d7",
+      "risk": "LOW",
+      "reason": "Spring Boot entry point — @SpringBootApplication main() only; no business logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/common/config/OpenApiConfig.java",
+      "sha": "20d02dabc34cf67401221765e4e2bd3aed663b2a",
+      "risk": "LOW",
+      "reason": "Pure @Configuration @Bean for Swagger/OpenAPI metadata; zero business logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/common/exception/BusinessException.java",
+      "sha": "a6a49339b428d248bb1391020e7d5bba81338e66",
+      "risk": "HIGH",
+      "reason": "common/exception layer; cross-community bridge (betweenness 0.067) connecting Rating Service Tests, Ticketing, and Exception Handling communities; thrown by TicketingService and RatingService",
+      "unit_test_class": "TicketingServiceTest, RatingServiceTest",
+      "unit_tests": [
+        "bookTickets_soldOut",
+        "bookTickets_insufficientSeats",
+        "bookTickets_seatCountMismatch",
+        "bookTickets_seatAlreadyTaken",
+        "cancelBooking_alreadyCancelled",
+        "submitRating_duplicateRating"
+      ],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/common/exception/GlobalExceptionHandler.java",
+      "sha": "46fa39384d3e9c37c85d5f2b5dde1a34d93ead6c",
+      "risk": "HIGH",
+      "reason": "@RestControllerAdvice affecting all 6 controllers; handles BusinessException (422), ResourceNotFoundException (404), MethodArgumentNotValidException (400), and generic Exception (500)",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getMovieNotFound",
+        "submitRating_invalidScore",
+        "bookTickets_missingFields"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/common/exception/ResourceNotFoundException.java",
+      "sha": "1ed18b322dddb7b572e44b99d847c107a62a5af4",
+      "risk": "HIGH",
+      "reason": "common/exception layer; highest betweenness centrality (0.110) — bridges Movie Service Tests, Ticketing, Financial, Awards, and Exception Handling communities; thrown by MovieService, TicketingService, FinancialService, SnapshotService",
+      "unit_test_class": "MovieServiceTest, TicketingServiceTest",
+      "unit_tests": [
+        "getMovieById_notFound",
+        "validateMovieExists_invalid",
+        "getBooking_notFound"
+      ],
+      "integration_tests": [
+        "getMovieNotFound"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/common/response/ApiResponse.java",
+      "sha": "e821153f1673bb5dc0019c812d6ae553fca04125",
+      "risk": "HIGH",
+      "reason": "God node #7 (11 edges); universal response wrapper used by all 6 controllers; breaking its contract (success, data, errorCode fields) fails every integration test",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getAllMovies",
+        "getMovieById",
+        "getMovieNotFound",
+        "getByYear",
+        "getByGenre",
+        "getByDirector",
+        "getFinancials_endgame",
+        "getWeeklyRevenue",
+        "getWeek2",
+        "getRatingSummary",
+        "submitRating",
+        "submitRating_invalidScore",
+        "getSnapshots",
+        "getIconicSnapshots",
+        "getRecognitionSummary_eeaao",
+        "getWins_parasite",
+        "getByCeremony",
+        "getCinemas",
+        "getShowtimesForMovie",
+        "getSeatAvailability",
+        "bookTickets_success",
+        "bookTickets_missingFields"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/financial/controller/FinancialController.java",
+      "sha": "d28c8cee62207323fe942b47204b9e4cec4eca47",
+      "risk": "MEDIUM",
+      "reason": "Community 11 'Financial Controller API'; routes 4 endpoints to FinancialService; no business logic of its own",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getFinancials_endgame",
+        "getWeeklyRevenue",
+        "getWeek2"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/financial/model/MovieFinancials.java",
+      "sha": "6f8515514a4895fa426a9581559fced4e9dcc789",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model for financial data; no business logic; Community 7 'Movie and Financial Models'",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getFinancials_endgame"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/financial/model/WeeklyRevenue.java",
+      "sha": "da7576fa8a8c834e1206838c4f8d9190e8be681a",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model for weekly box-office data; no business logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getWeeklyRevenue",
+        "getWeek2"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/financial/repository/FinancialRepository.java",
+      "sha": "8ff4e42a621fe29882c58f520c9c0937793892ca",
+      "risk": "MEDIUM",
+      "reason": "@PostConstruct in-memory seed computes ROI, breakEven, and 4-week weekly breakdowns for all 10 movies; changes silently corrupt all financial integration tests",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getFinancials_endgame",
+        "getWeeklyRevenue",
+        "getWeek2"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/financial/service/FinancialService.java",
+      "sha": "cd4778554f7386067cdf0c44d17db8e8cebe9289",
+      "risk": "MEDIUM",
+      "reason": "Community 16 'Financial Service Layer'; contains week-number validation business rule; depends on MovieService (god node) and FinancialRepository",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getFinancials_endgame",
+        "getWeeklyRevenue",
+        "getWeek2"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/controller/MovieController.java",
+      "sha": "eb1ed28a5047a6b4fc109eae380ab564008679b4",
+      "risk": "MEDIUM",
+      "reason": "Community 8 'Movie Controller API'; 6 endpoints delegating to MovieService; adjacent to the god node chain",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getAllMovies",
+        "getMovieById",
+        "getMovieNotFound",
+        "getByYear",
+        "getByGenre",
+        "getByDirector"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/dto/MovieSummaryDto.java",
+      "sha": "6d7e4f6c19166d15699eacd415473a5235bdf155",
+      "risk": "LOW",
+      "reason": "Lightweight projection DTO used by MovieService.getSummaries(); pure @Data @Builder; no logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getAllMovies"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/model/CastMember.java",
+      "sha": "ba23ae3ee2bb7a781901cccb68e07b5705da6b50",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model embedded in Movie; no business logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/model/CrewMember.java",
+      "sha": "b83faa05f122b0708dd3f7e0f9b4beb1854c131a",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model embedded in Movie; no business logic; Community 25 'Crew Member Model'",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/model/Genre.java",
+      "sha": "c7fdb1fdd421d4053036cea7e6ec82ddc63ad46d",
+      "risk": "LOW",
+      "reason": "Enum with 19 genre values; used in Movie, MovieRepository filter, and MovieController path; value changes require seed data update",
+      "unit_test_class": "MovieServiceTest",
+      "unit_tests": [
+        "getMoviesByGenre"
+      ],
+      "integration_tests": [
+        "getByGenre"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/model/Movie.java",
+      "sha": "7b2c59b4defd09f89733d1e2a0b7071b99197a85",
+      "risk": "MEDIUM",
+      "reason": "Core domain entity; seeded with 10 movies in MovieRepository; referenced indirectly by all 5 non-movie services via MovieService.validateMovieExists(); field changes propagate widely",
+      "unit_test_class": "MovieServiceTest, RatingServiceTest, TicketingServiceTest",
+      "unit_tests": [
+        "getMovieById_found",
+        "getMovieById_notFound",
+        "getMoviesByYear",
+        "getMoviesByYear_empty",
+        "getMoviesByGenre",
+        "validateMovieExists_valid",
+        "validateMovieExists_invalid",
+        "submitRating_success",
+        "submitRating_duplicateRating",
+        "getSummary_computesAverage",
+        "getSummary_noRatings"
+      ],
+      "integration_tests": [
+        "getAllMovies",
+        "getMovieById",
+        "getByYear",
+        "getByGenre",
+        "getByDirector"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/model/MovieStatus.java",
+      "sha": "c2cc3e7dae030b3274bfa71c6f0ca041d1f3139c",
+      "risk": "LOW",
+      "reason": "Enum with 6 status values (PRE_PRODUCTION through ARCHIVED); embedded in Movie; no logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/repository/MovieRepository.java",
+      "sha": "8d023736045d63cd7fa35e07f1e7087a56f8a7d8",
+      "risk": "MEDIUM",
+      "reason": "@PostConstruct seeds 10 complete Movie objects with full cast/crew; foundation for all movie-dependent data; mocked in MovieServiceTest",
+      "unit_test_class": "MovieServiceTest",
+      "unit_tests": [
+        "getMovieById_found",
+        "getMovieById_notFound",
+        "getMoviesByYear",
+        "getMoviesByYear_empty",
+        "getMoviesByGenre",
+        "validateMovieExists_valid",
+        "validateMovieExists_invalid"
+      ],
+      "integration_tests": [
+        "getAllMovies",
+        "getMovieById",
+        "getMovieNotFound",
+        "getByYear",
+        "getByGenre",
+        "getByDirector"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/movie/service/MovieService.java",
+      "sha": "6480dd08833ae5d515d1a8c1ba0947d74579e3aa",
+      "risk": "HIGH",
+      "reason": "Explicit CLAUDE.md warning: 'Changing MovieService.java is always HIGH risk'; validateMovieExists() called by all 5 other services (Ticketing, Rating, Financial, Recognition, Snapshot); god-node chain hub",
+      "unit_test_class": "MovieServiceTest",
+      "unit_tests": [
+        "getMovieById_found",
+        "getMovieById_notFound",
+        "getMoviesByYear",
+        "getMoviesByYear_empty",
+        "getMoviesByGenre",
+        "validateMovieExists_valid",
+        "validateMovieExists_invalid"
+      ],
+      "integration_tests": [
+        "getAllMovies",
+        "getMovieById",
+        "getMovieNotFound",
+        "getByYear",
+        "getByGenre",
+        "getByDirector",
+        "getFinancials_endgame",
+        "getRatingSummary",
+        "submitRating",
+        "getSnapshots",
+        "getRecognitionSummary_eeaao",
+        "getShowtimesForMovie",
+        "bookTickets_success"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/rating/controller/RatingController.java",
+      "sha": "3b790130f648c399d0ca608920800c68eec97d3a",
+      "risk": "MEDIUM",
+      "reason": "Community 9 'Rating Controller API'; 3 endpoints (POST submit, GET summary, GET all); uses @Valid on RatingRequest",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getRatingSummary",
+        "submitRating",
+        "submitRating_invalidScore"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/rating/dto/RatingRequest.java",
+      "sha": "3f20b862d9247b3a6eedfdddbf5124a41c687272",
+      "risk": "LOW",
+      "reason": "DTO with @NotBlank, @DecimalMin(1.0), @DecimalMax(10.0), @Size(max=1000) constraints; validation constraints directly determine which requests reach submitRating_invalidScore",
+      "unit_test_class": "RatingServiceTest",
+      "unit_tests": [
+        "submitRating_success",
+        "submitRating_duplicateRating"
+      ],
+      "integration_tests": [
+        "submitRating",
+        "submitRating_invalidScore"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/rating/model/Rating.java",
+      "sha": "63e64160bcf150cc3f51118596bf41cd6ab29199",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model for individual rating; no business logic",
+      "unit_test_class": "RatingServiceTest",
+      "unit_tests": [
+        "submitRating_success",
+        "getSummary_computesAverage",
+        "getSummary_noRatings"
+      ],
+      "integration_tests": [
+        "submitRating"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/rating/model/RatingSummary.java",
+      "sha": "34de3008b3003435e7e5727b44d67d0493d84d6e",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder aggregate model; computed by RatingService.getSummary(); contains imdbScore, averageScore, totalRatings, rottenTomatoes, audienceScore, scoreDistribution",
+      "unit_test_class": "RatingServiceTest",
+      "unit_tests": [
+        "getSummary_computesAverage",
+        "getSummary_noRatings"
+      ],
+      "integration_tests": [
+        "getRatingSummary"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/rating/repository/RatingRepository.java",
+      "sha": "900cad2494699f669e5591eaf4904179177e661b",
+      "risk": "MEDIUM",
+      "reason": "@PostConstruct seeds Gaussian-distributed ratings (~463 total across 10 movies); contains duplicate-rating detection; mocked in RatingServiceTest",
+      "unit_test_class": "RatingServiceTest",
+      "unit_tests": [
+        "submitRating_success",
+        "submitRating_duplicateRating",
+        "getSummary_computesAverage",
+        "getSummary_noRatings"
+      ],
+      "integration_tests": [
+        "getRatingSummary",
+        "submitRating"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/rating/service/RatingService.java",
+      "sha": "4396923e0254535d803d6de0b9924a81c3f72f9f",
+      "risk": "MEDIUM",
+      "reason": "Community 1 'Rating Service Tests'; contains duplicate-rating prevention, score rounding, and summary computation with hardcoded IMDb/RT score maps; depends on MovieService",
+      "unit_test_class": "RatingServiceTest",
+      "unit_tests": [
+        "submitRating_success",
+        "submitRating_duplicateRating",
+        "getSummary_computesAverage",
+        "getSummary_noRatings"
+      ],
+      "integration_tests": [
+        "getRatingSummary",
+        "submitRating",
+        "submitRating_invalidScore"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/recognition/controller/RecognitionController.java",
+      "sha": "a40899b5bf95cec32ff68ea465ff66c768aa20b6",
+      "risk": "MEDIUM",
+      "reason": "Community 12 'Recognition Controller API'; 4 endpoints delegating to RecognitionService; no business logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getRecognitionSummary_eeaao",
+        "getWins_parasite",
+        "getByCeremony"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/recognition/model/Award.java",
+      "sha": "27cd75000845595e181c5ee097b9c7928f90f022",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model; fields: id, movieId, ceremonyName, ceremonyYear, category, nominee, won, presentedBy, ceremonyEdition; no logic; Community 22 'Award Model'",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getWins_parasite",
+        "getByCeremony"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/recognition/model/AwardSummary.java",
+      "sha": "e1fd19ce2d0d7c47e8a2a4cb7611221e265b7b8c",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder aggregate model; computed by RecognitionService; fields: oscarWins, isMultipleOscarWinner, totalWins, totalNominations",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getRecognitionSummary_eeaao"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/recognition/repository/AwardRepository.java",
+      "sha": "27b8f9dba851f209cf1524116498bdca41160d41",
+      "risk": "MEDIUM",
+      "reason": "Community 15 'Award Repository'; @PostConstruct seeds ~80 awards across 9 movies; ConcurrentHashMap storage; changes silently corrupt all recognition integration tests",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getRecognitionSummary_eeaao",
+        "getWins_parasite",
+        "getByCeremony"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/recognition/service/RecognitionService.java",
+      "sha": "3dfb04211534aee14ab1a1d447d87324152e1790",
+      "risk": "MEDIUM",
+      "reason": "Community 6 'Awards Recognition Service'; computes Oscar win counts, groupByCeremony, isMultipleOscarWinner; depends on MovieService and AwardRepository",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getRecognitionSummary_eeaao",
+        "getWins_parasite",
+        "getByCeremony"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/snapshot/controller/SnapshotController.java",
+      "sha": "9ed96e587d69089203b20a9c525f98c4847180dc",
+      "risk": "MEDIUM",
+      "reason": "Community 13 'Snapshot Controller API'; 4 endpoints delegating to SnapshotService; no business logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getSnapshots",
+        "getIconicSnapshots"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/snapshot/model/Snapshot.java",
+      "sha": "57d9ee4d73e331bdd3ea9bcfcf962f039f255b1c",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model; fields: id, movieId, title, description, timestampInFilm, quote, sceneContext, category, isIconic, popularityRank; no logic; Community 26 'Snapshot Model'",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getSnapshots",
+        "getIconicSnapshots"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/snapshot/model/SnapshotCategory.java",
+      "sha": "d53f1c4d953f25176a64b4c742db4f704eaff610",
+      "risk": "LOW",
+      "reason": "Enum with 10 snapshot category values; used in Snapshot model and SnapshotService.getByCategory(); no logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/snapshot/repository/SnapshotRepository.java",
+      "sha": "6a745346c197e725e6cb25ca3e7ab6d6ff3b08a2",
+      "risk": "MEDIUM",
+      "reason": "Community 14 'Snapshot Repository'; @PostConstruct seeds snapshots for 6 movies; contains findByMovieId, findById, findByCategory; changes corrupt snapshot integration tests",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getSnapshots",
+        "getIconicSnapshots"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/snapshot/service/SnapshotService.java",
+      "sha": "cdd52b2ec9d867fb1b7e4ec59e59dcfc6be64351",
+      "risk": "MEDIUM",
+      "reason": "Validates movie existence via MovieService before delegating to SnapshotRepository; sorts by popularityRank; filters isIconic; depends on MovieService god node",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getSnapshots",
+        "getIconicSnapshots"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/controller/TicketingController.java",
+      "sha": "c7fef5420fd2ea79a456d2c5aa5844065224be1f",
+      "risk": "HIGH",
+      "reason": "God node #5 (11 edges) in GRAPH_REPORT.md; REST controller for the most complex domain; handles transactional POST /bookings with @Valid; directly exercises GlobalExceptionHandler, ApiResponse, BookingRequest, Booking, TicketingService",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getCinemas",
+        "getShowtimesForMovie",
+        "getSeatAvailability",
+        "bookTickets_success",
+        "bookTickets_missingFields"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/dto/BookingRequest.java",
+      "sha": "bf410658ce4639f14d887e7ce9120258fa9db15a",
+      "risk": "MEDIUM",
+      "reason": "DTO with @NotBlank, @NotNull, @Min(1), @Max(8), @NotEmpty, @Pattern(STANDARD|PREMIUM) constraints; validation constraints are the gating condition for bookTickets_missingFields; every bookTickets unit test constructs this object",
+      "unit_test_class": "TicketingServiceTest",
+      "unit_tests": [
+        "bookTickets_success",
+        "bookTickets_soldOut",
+        "bookTickets_insufficientSeats",
+        "bookTickets_seatCountMismatch",
+        "bookTickets_seatAlreadyTaken",
+        "bookTickets_premiumPricing"
+      ],
+      "integration_tests": [
+        "bookTickets_success",
+        "bookTickets_missingFields"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/dto/SeatAvailabilityDto.java",
+      "sha": "5018fe0c85a1aac86292d0cf4b3ef42ad884380a",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder DTO returned by TicketingService.getAvailability(); contains fullSeatMap, availableSeatNumbers, prices; no business logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getSeatAvailability"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/Booking.java",
+      "sha": "683c053f157fb16800338f1dbbf6afcaed947032",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model; 14 fields including id, seatNumbers, unitPrice, totalAmount, ticketType, status, confirmationCode; returned by 4 controller endpoints — field additions change JSON response shape for all 4",
+      "unit_test_class": "TicketingServiceTest",
+      "unit_tests": [
+        "bookTickets_success",
+        "cancelBooking_success",
+        "cancelBooking_alreadyCancelled",
+        "getBooking_notFound"
+      ],
+      "integration_tests": [
+        "bookTickets_success"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/BookingStatus.java",
+      "sha": "c45d4c34187862ef68221cc95354ec88f57e3e44",
+      "risk": "LOW",
+      "reason": "Enum with 5 values (PENDING, CONFIRMED, CANCELLED, EXPIRED, REFUNDED); drives cancel guard logic in TicketingService; asserted directly in 3 unit tests",
+      "unit_test_class": "TicketingServiceTest",
+      "unit_tests": [
+        "bookTickets_success",
+        "cancelBooking_success",
+        "cancelBooking_alreadyCancelled"
+      ],
+      "integration_tests": [
+        "bookTickets_success"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/Cinema.java",
+      "sha": "dc87a5a6611ae0003a04830dbf35db4b08a708e6",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model; fields: id, name, address, city, screens; seeded with 3 cinemas; no logic; Community 21 'Cinema Model'",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getCinemas"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/Screen.java",
+      "sha": "b7bb78cffbf65cc52e317c5cb44a29e87dc89bb0",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model embedded in Cinema; fields: id, name, type, totalSeats, rows, seatsPerRow; no logic; Community 27 'Screen Model'",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": [
+        "getCinemas"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/ScreenType.java",
+      "sha": "51dc9c033fd98cefcd905f66c2c77205bf18c00f",
+      "risk": "LOW",
+      "reason": "Enum with 5 values (STANDARD, IMAX, DOLBY_ATMOS, FOUR_DX, VIP); used in Screen model and TicketingRepository seed; no logic",
+      "unit_test_class": null,
+      "unit_tests": [],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/Showtime.java",
+      "sha": "9cb1ac25e7ea980037d752d7d764c06d681221e4",
+      "risk": "LOW",
+      "reason": "Pure @Data @Builder model; mutated during booking (availableSeats decremented) and cancellation (seats released) by TicketingRepository.bookSeats() and cancelBooking(); field changes affect seat-availability calculations",
+      "unit_test_class": "TicketingServiceTest",
+      "unit_tests": [
+        "bookTickets_success",
+        "bookTickets_soldOut",
+        "bookTickets_insufficientSeats",
+        "bookTickets_seatCountMismatch",
+        "bookTickets_seatAlreadyTaken",
+        "bookTickets_premiumPricing"
+      ],
+      "integration_tests": [
+        "getShowtimesForMovie",
+        "getSeatAvailability"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/ShowtimeStatus.java",
+      "sha": "5fac5c5477e36ee87bf4aed9bcc95b57addab731",
+      "risk": "LOW",
+      "reason": "Enum with 5 values (SCHEDULED, ON_SALE, SOLD_OUT, CANCELLED, COMPLETED); drives booking availability checks in TicketingService.bookTickets(); status transitions handled in TicketingRepository",
+      "unit_test_class": "TicketingServiceTest",
+      "unit_tests": [
+        "bookTickets_soldOut",
+        "bookTickets_success"
+      ],
+      "integration_tests": []
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/repository/TicketingRepository.java",
+      "sha": "98116ea0ca05b3f5d3069d71e3081ea455018305",
+      "risk": "HIGH",
+      "reason": "God node #4 (17 edges) — most connected source-file node in the system; holds all in-memory state for 3 cinemas, 13 showtimes, seat maps, and bookings; synchronized bookSeats/cancelBooking create TOCTOU risk for any new concurrent operation; @PostConstruct is the single source of truth for all ticketing data",
+      "unit_test_class": "TicketingServiceTest",
+      "unit_tests": [
+        "bookTickets_success",
+        "bookTickets_soldOut",
+        "bookTickets_insufficientSeats",
+        "bookTickets_seatCountMismatch",
+        "bookTickets_seatAlreadyTaken",
+        "bookTickets_premiumPricing",
+        "cancelBooking_success",
+        "cancelBooking_alreadyCancelled",
+        "getBooking_notFound"
+      ],
+      "integration_tests": [
+        "getCinemas",
+        "getShowtimesForMovie",
+        "getSeatAvailability",
+        "bookTickets_success",
+        "bookTickets_missingFields"
+      ]
+    },
+    {
+      "file": "movieverse/movieverse/src/main/java/com/movieverse/ticketing/service/TicketingService.java",
+      "sha": "f6923813a828e45be74434a84c304170982eca66",
+      "risk": "HIGH",
+      "reason": "God node #10 (11 edges); contains 5 booking validation rules, premium/standard pricing logic, and cancellation guards; bookTickets() is the system's highest-complexity transactional method; all 9 TicketingServiceTest methods exercise this class",
+      "unit_test_class": "TicketingServiceTest",
+      "unit_tests": [
+        "bookTickets_success",
+        "bookTickets_soldOut",
+        "bookTickets_insufficientSeats",
+        "bookTickets_seatCountMismatch",
+        "bookTickets_seatAlreadyTaken",
+        "bookTickets_premiumPricing",
+        "cancelBooking_success",
+        "cancelBooking_alreadyCancelled",
+        "getBooking_notFound"
+      ],
+      "integration_tests": [
+        "bookTickets_success",
+        "bookTickets_missingFields"
+      ]
+    }
+  ],
+  "summary": {
+    "total_source_files": 48,
+    "by_risk": {
+      "HIGH": 8,
+      "MEDIUM": 16,
+      "LOW": 24
+    },
+    "high_risk_files": [
+      "common/exception/BusinessException.java",
+      "common/exception/GlobalExceptionHandler.java",
+      "common/exception/ResourceNotFoundException.java",
+      "common/response/ApiResponse.java",
+      "movie/service/MovieService.java",
+      "ticketing/controller/TicketingController.java",
+      "ticketing/repository/TicketingRepository.java",
+      "ticketing/service/TicketingService.java"
+    ],
+    "unit_test_classes": 3,
+    "unit_test_methods_total": 20,
+    "integration_test_class": "MovieVerseIntegrationTest",
+    "integration_test_methods_total": 22,
+    "files_with_no_tests": 28,
+    "mvn_high_risk_suite": "mvn test -Dtest=\"MovieServiceTest,RatingServiceTest,TicketingServiceTest,MovieVerseIntegrationTest\"",
+    "mvn_full_suite": "mvn test"
+  }
+}

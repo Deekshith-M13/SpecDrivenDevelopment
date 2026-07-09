@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MovieVerse — Impact Analysis, Regression & Delta Fix Agent Blueprint</title>
+<style>
+:root {
+  --ink:      #0f1117;
+  --ink2:     #3a3d4a;
+  --ink3:     #6b6f7e;
+  --surface:  #ffffff;
+  --s2:       #f5f6f8;
+  --s3:       #edeef2;
+  --border:   #dddfe6;
+  --teal:     #0f6e56;
+  --teal-l:   #e1f5ee;
+  --teal-m:   #1d9e75;
+  --purple:   #534ab7;
+  --purple-l: #eeedfe;
+  --amber:    #854f0b;
+  --amber-l:  #faeeda;
+  --amber-m:  #ef9f27;
+  --coral:    #993c1d;
+  --coral-l:  #faece7;
+  --blue:     #185fa5;
+  --blue-l:   #e6f1fb;
+  --red:      #a32d2d;
+  --red-l:    #fcebeb;
+  --green:    #3b6d11;
+  --green-l:  #eaf3de;
+  --mono: 'JetBrains Mono','Fira Code',monospace;
+  --sans: 'Inter',system-ui,-apple-system,sans-serif;
+  --r: 8px; --rl: 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--surface);color:var(--ink);font-size:15px;line-height:1.65}
+nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;height:52px;overflow-x:auto;gap:0}
+nav a{text-decoration:none;color:var(--ink3);font-size:13px;font-weight:500;padding:0 12px;height:52px;display:flex;align-items:center;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+nav a:hover{color:var(--ink)}
+nav a.active{color:var(--teal);border-bottom-color:var(--teal)}
+.nav-brand{font-weight:700;font-size:14px;color:var(--ink);margin-right:1.5rem;white-space:nowrap;letter-spacing:-.3px}
+.page{max-width:980px;margin:0 auto;padding:0 2rem 6rem}
+.hero{padding:4rem 0 3rem;border-bottom:1px solid var(--border);margin-bottom:3rem}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);background:var(--teal-l);border:1px solid #9fe1cb;padding:4px 12px;border-radius:100px;margin-bottom:1.2rem}
+h1{font-size:clamp(1.7rem,3.5vw,2.6rem);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:.9rem}
+h1 span{color:var(--teal)}
+.hero-sub{font-size:16px;color:var(--ink2);max-width:640px;line-height:1.7;margin-bottom:1.5rem}
+.hero-pills{display:flex;gap:.6rem;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;border:1px solid}
+.pill-teal{background:var(--teal-l);color:var(--teal);border-color:#9fe1cb}
+.pill-purple{background:var(--purple-l);color:var(--purple);border-color:#c4bff0}
+.pill-amber{background:var(--amber-l);color:var(--amber);border-color:#f5c96a}
+.pill-coral{background:var(--coral-l);color:var(--coral);border-color:#f0a07a}
+.pill-blue{background:var(--blue-l);color:var(--blue);border-color:#9ec8f0}
+.section{margin-bottom:3.5rem;scroll-margin-top:64px}
+.section-label{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:.5rem}
+h2{font-size:1.45rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.9rem}
+h3{font-size:1.05rem;font-weight:650;letter-spacing:-.01em;margin:1.6rem 0 .5rem}
+p{margin-bottom:.8rem;color:var(--ink2)}
+hr.div{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+pre{background:#0f1117;color:#c9d1d9;border-radius:var(--r);padding:1.1rem 1.3rem;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;margin:.8rem 0}
+code{font-family:var(--mono);font-size:12.5px;background:var(--s3);border:1px solid var(--border);padding:1px 6px;border-radius:4px}
+pre code{background:none;border:none;padding:0;color:inherit}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.cmt{color:#6e7781}.fn{color:#d2a8ff}.val{color:#79c0ff}.tg{color:#7ee787}
+
+/* service map */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.2rem 0}
+.svc-card{border:1px solid var(--border);border-radius:var(--rl);padding:16px 18px;background:var(--surface)}
+.svc-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.svc-card h4{font-size:14px;font-weight:650;margin-bottom:6px}
+.svc-card ul{list-style:none;font-size:12px;color:var(--ink3);line-height:1.85}
+
+/* dep chain */
+.dep-chain{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:1rem 0;padding:16px 20px;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);font-size:13px}
+.dep-node{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-family:var(--mono);font-size:12px;color:var(--ink)}
+.dep-arrow{color:var(--ink3);font-size:16px}
+.dep-node.hi{border-color:var(--teal-m);color:var(--teal);background:var(--teal-l)}
+.dep-node.ha{border-color:var(--amber-m);color:var(--amber);background:var(--amber-l)}
+.dep-node.hp{border-color:var(--purple);color:var(--purple);background:var(--purple-l)}
+
+/* problem cards */
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.2rem 0}
+.prob-card{border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px;background:var(--surface)}
+.prob-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-bottom:10px}
+.prob-card h4{font-size:13px;font-weight:650;margin-bottom:6px}
+.prob-card p{font-size:12.5px;color:var(--ink3);margin:0}
+
+/* layer cards */
+.layer{border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin:1.2rem 0}
+.layer-hd{display:flex;align-items:center;gap:14px;padding:16px 22px;background:var(--s2);border-bottom:1px solid var(--border)}
+.layer-num{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.layer-hd h3{margin:0;font-size:14px}
+.layer-hd p{margin:0;font-size:12px;color:var(--ink3)}
+.layer-body{padding:18px 22px}
+
+/* tool table */
+.tool-table{width:100%;border-collapse:collapse;font-size:13px;margin:1.2rem 0;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.tool-table th{background:var(--s2);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);border-bottom:1px solid var(--border)}
+.tool-table td{padding:11px 14px;border-bottom:1px solid var(--s3);color:var(--ink2);vertical-align:top;line-height:1.5}
+.tool-table tr:last-child td{border-bottom:none}
+.tool-table td:first-child{font-weight:600;color:var(--ink);white-space:nowrap}
+
+/* manifest table */
+.manifest{width:100%;border-collapse:collapse;font-size:12px;margin:.8rem 0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.manifest th{background:var(--s2);padding:8px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);border-bottom:1px solid var(--border);text-align:left}
+.manifest td{padding:9px 12px;border-bottom:1px solid var(--s3);vertical-align:top;line-height:1.45}
+.manifest tr:last-child td{border-bottom:none}
+.manifest td:first-child{font-family:var(--mono);font-size:11px;color:var(--blue);white-space:nowrap}
+.manifest td:nth-child(2){color:var(--ink2)}
+.manifest td:last-child{font-family:var(--mono);font-size:11px;color:var(--teal)}
+.risk-h{color:var(--red);font-weight:700}
+.risk-m{color:var(--amber);font-weight:700}
+.risk-l{color:var(--green);font-weight:700}
+
+/* agent cards */
+.agent-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin:1.2rem 0}
+.agent-card{border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px}
+.agent-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.agent-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.agent-name{font-size:14px;font-weight:650}
+.agent-role{font-size:11px;color:var(--ink3);font-weight:500}
+.agent-tools{margin-top:10px;display:flex;flex-wrap:wrap;gap:5px}
+.atool{font-size:11px;padding:2px 7px;border-radius:4px;background:var(--s3);color:var(--ink3);font-family:var(--mono)}
+
+/* pipeline */
+.pipeline{display:flex;flex-direction:column;gap:0;margin:1.2rem 0;position:relative}
+.pipeline::before{content:'';position:absolute;left:19px;top:20px;bottom:20px;width:2px;background:linear-gradient(to bottom,var(--teal-m),var(--purple));border-radius:2px}
+.pipe-step{display:flex;gap:16px;align-items:flex-start;padding:12px 0;position:relative}
+.pipe-n{width:40px;height:40px;border-radius:50%;background:var(--surface);border:2px solid var(--teal-m);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--teal);flex-shrink:0;z-index:1}
+.pipe-n.late{border-color:var(--purple);color:var(--purple)}
+.pipe-content{flex:1;padding-top:8px}
+.pipe-title{font-size:14px;font-weight:650;color:var(--ink);margin-bottom:3px}
+.pipe-desc{font-size:13px;color:var(--ink3);line-height:1.5}
+.pipe-tag{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+.tag-auto{background:var(--blue-l);color:var(--blue)}
+.tag-agent{background:var(--purple-l);color:var(--purple)}
+.tag-human{background:var(--amber-l);color:var(--amber)}
+.tag-gate{background:var(--red-l);color:var(--red)}
+.tag-fix{background:var(--green-l);color:var(--green)}
+
+/* callout */
+.callout{border-left:3px solid;border-radius:0 var(--r) var(--r) 0;padding:13px 17px;margin:1rem 0;font-size:13.5px;line-height:1.6}
+.ct{border-color:var(--teal-m);background:var(--teal-l);color:#085041}
+.ca{border-color:var(--amber-m);background:var(--amber-l);color:#633806}
+.cp{border-color:var(--purple);background:var(--purple-l);color:#3c3489}
+.cr{border-color:#d05050;background:var(--red-l);color:var(--red)}
+.cg{border-color:#6aab28;background:var(--green-l);color:var(--green)}
+
+/* decision table */
+.dtable{display:grid;grid-template-columns:190px 1fr;border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin:1.2rem 0;font-size:13px}
+.dl{background:var(--s2);padding:13px 16px;font-weight:600;border-right:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center}
+.dr{padding:13px 16px;color:var(--ink2);border-bottom:1px solid var(--border);line-height:1.55}
+.dl:last-of-type,.dr:last-child{border-bottom:none}
+
+/* ref list */
+.ref-list{list-style:none;display:flex;flex-direction:column;gap:7px;margin:1rem 0}
+.ref-list li{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+.ref-num{width:20px;height:20px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--ink3);flex-shrink:0;margin-top:1px}
+.ref-list a{color:var(--blue);text-decoration:none}
+.ref-list a:hover{text-decoration:underline}
+
+footer{margin-top:4rem;padding:1.5rem 0;border-top:1px solid var(--border);font-size:12px;color:var(--ink3);text-align:center}
+@media(max-width:640px){
+  .svc-grid,.prob-grid,.agent-grid{grid-template-columns:1fr}
+  .dtable{grid-template-columns:1fr}
+  .dl{border-right:none;border-bottom:none;border-top:1px solid var(--border)}
+  .dl:first-child{border-top:none}
+  .page{padding:0 1rem 4rem}
+  .hero{padding:2rem 0 1.5rem}
+  .dep-chain{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">MovieVerse Blueprint</span>
+  <a href="#overview" class="active">Overview</a>
+  <a href="#codebase">Codebase</a>
+  <a href="#indexing">Indexing</a>
+  <a href="#impact">Impact analysis</a>
+  <a href="#regression">Regression mapping</a>
+  <a href="#agents">Agents</a>
+  <a href="#fix-agent">Fix agent</a>
+  <a href="#pipeline">CI pipeline</a>
+  <a href="#decisions">Decisions</a>
+  <a href="#refs">References</a>
+</nav>
+
+<div class="page">
+
+<!-- ── HERO ── -->
+<section class="hero" id="overview">
+  <div class="eyebrow">Engineering Blueprint · June 2026</div>
+  <h1>MovieVerse <span>Impact, Regression</span><br>& Delta Fix Agent Architecture</h1>
+  <p class="hero-sub">A complete plan for the MovieVerse Spring Boot application — covering semantic code indexing, automated impact discovery when any service changes, test regression mapping, and an AI Fix Agent that proposes targeted code corrections for impacted delta code.</p>
+  <div class="hero-pills">
+    <span class="pill pill-teal">Spring Boot 3.2 · Java 21</span>
+    <span class="pill pill-blue">6 domain services</span>
+    <span class="pill pill-purple">Graphify + CocoIndex</span>
+    <span class="pill pill-amber">code-review-graph</span>
+    <span class="pill pill-coral">Claude Code agents</span>
+  </div>
+</section>
+
+<!-- ── THREE PROBLEMS ── -->
+<section class="section" id="problem">
+  <span class="section-label">Problem definition</span>
+  <h2>Three problems for the MovieVerse codebase</h2>
+
+  <div class="prob-grid">
+    <div class="prob-card">
+      <div class="prob-num" style="background:var(--teal-l);color:var(--teal)">P1</div>
+      <h4>Index and understand the code</h4>
+      <p>Build a semantic + structural index of all 6 domain services so any developer or agent can query the codebase by meaning — not by grepping files one by one.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num" style="background:var(--amber-l);color:var(--amber)">P2</div>
+      <h4>Find regression areas on change</h4>
+      <p>When a developer changes the <code>TicketingService</code>, <code>MovieRepository</code>, or any shared class, automatically find every other service, test, and API endpoint that may regress.</p>
+    </div>
+    <div class="prob-card">
+      <div class="prob-num" style="background:var(--purple-l);color:var(--purple)">P3</div>
+      <h4>Fix impacted delta code</h4>
+      <p>After regression areas are identified, a Fix Agent reads the impacted code, understands what changed (the delta), and proposes targeted corrections — not a full rewrite.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ── CODEBASE MAP ── -->
+<section class="section" id="codebase">
+  <span class="section-label">Codebase context</span>
+  <h2>The MovieVerse service map — 6 domains, 48 Java files</h2>
+  <p>Each domain follows the same internal structure: <code>controller → service → repository → model/dto</code>. The <code>MovieService</code> is the shared dependency — every other service calls <code>validateMovieExists()</code> on it, making it the highest-risk node in the graph.</p>
+
+  <div class="svc-grid">
+    <div class="svc-card">
+      <div class="svc-tag" style="color:var(--teal)">Domain 1</div>
+      <h4>Movie Catalogue</h4>
+      <ul>
+        <li>MovieController</li>
+        <li>MovieService ← <strong>shared dependency</strong></li>
+        <li>MovieRepository (seeds 10 films)</li>
+        <li>Movie, Genre, CastMember, CrewMember</li>
+        <li>MovieSummaryDto</li>
+      </ul>
+    </div>
+    <div class="svc-card">
+      <div class="svc-tag" style="color:var(--blue)">Domain 2</div>
+      <h4>Financial Service</h4>
+      <ul>
+        <li>FinancialController</li>
+        <li>FinancialService</li>
+        <li>FinancialRepository (real box office data)</li>
+        <li>MovieFinancials, WeeklyRevenue</li>
+        <li>Calls: MovieService.validateMovieExists</li>
+      </ul>
+    </div>
+    <div class="svc-card">
+      <div class="svc-tag" style="color:var(--amber)">Domain 3</div>
+      <h4>Rating Service</h4>
+      <ul>
+        <li>RatingController</li>
+        <li>RatingService</li>
+        <li>RatingRepository (seeded by IMDb scores)</li>
+        <li>Rating, RatingSummary, RatingRequest</li>
+        <li>Calls: MovieService.getMovieById</li>
+      </ul>
+    </div>
+    <div class="svc-card">
+      <div class="svc-tag" style="color:var(--coral)">Domain 4</div>
+      <h4>Snapshot Service</h4>
+      <ul>
+        <li>SnapshotController</li>
+        <li>SnapshotService</li>
+        <li>SnapshotRepository (iconic moments)</li>
+        <li>Snapshot, SnapshotCategory</li>
+        <li>Calls: MovieService.validateMovieExists</li>
+      </ul>
+    </div>
+    <div class="svc-card">
+      <div class="svc-tag" style="color:var(--purple)">Domain 5</div>
+      <h4>Recognition Service</h4>
+      <ul>
+        <li>RecognitionController</li>
+        <li>RecognitionService</li>
+        <li>AwardRepository (real Oscar/BAFTA data)</li>
+        <li>Award, AwardSummary</li>
+        <li>Calls: MovieService.getMovieById</li>
+      </ul>
+    </div>
+    <div class="svc-card">
+      <div class="svc-tag" style="color:var(--red)">Domain 6</div>
+      <h4>Ticketing Service</h4>
+      <ul>
+        <li>TicketingController</li>
+        <li>TicketingService</li>
+        <li>TicketingRepository (seat maps, showtimes)</li>
+        <li>Booking, Cinema, Screen, Showtime</li>
+        <li>Calls: MovieService.validateMovieExists</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The critical dependency chain</h3>
+  <p>Every domain service depends on <code>MovieService</code>. Any change to <code>Movie</code>, <code>MovieRepository</code>, or <code>MovieService</code> propagates to all 5 downstream services. This is the highest blast-radius node in the codebase.</p>
+
+  <div class="dep-chain">
+    <span class="dep-node hi">MovieRepository</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node hi">MovieService</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node">FinancialService</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node">RatingService</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node">SnapshotService</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node">RecognitionService</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node">TicketingService</span>
+  </div>
+  <div class="dep-chain">
+    <span class="dep-node ha">Booking model change</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node">TicketingRepository</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node">TicketingService</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node">TicketingController</span>
+    <span class="dep-arrow">→</span>
+    <span class="dep-node hp">Integration tests</span>
+  </div>
+
+  <h3>Common service layer (shared by all domains)</h3>
+  <div class="dep-chain">
+    <span class="dep-node hi">ApiResponse&lt;T&gt;</span>
+    <span class="dep-arrow">←</span>
+    <span class="dep-node">all 6 controllers</span>
+    <span class="dep-arrow">&nbsp;&nbsp;&nbsp;</span>
+    <span class="dep-node hi">GlobalExceptionHandler</span>
+    <span class="dep-arrow">←</span>
+    <span class="dep-node">ResourceNotFoundException</span>
+    <span class="dep-arrow">+</span>
+    <span class="dep-node">BusinessException</span>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ── INDEXING ── -->
+<section class="section" id="indexing">
+  <span class="section-label">Layer 1</span>
+  <h2>Code indexing — semantic + structural</h2>
+
+  <div class="layer">
+    <div class="layer-hd">
+      <div class="layer-num" style="background:var(--teal-l);color:var(--teal)">1</div>
+      <div><h3>Two indexes — one for meaning, one for structure</h3>
+      <p>CocoIndex builds AST-aware semantic embeddings · Graphify builds the call/import graph · both update incrementally on commit</p></div>
+    </div>
+    <div class="layer-body">
+
+      <h3>Step 1 — Install both indexers</h3>
+      <pre><code><span class="cmt"># From the moviesite root folder</span>
+cd C:\AgenticOrchestration\moviesite
+
+<span class="cmt"># Semantic index — finds code by meaning</span>
+pipx install <span class="str">'cocoindex-code[full]'</span>
+ccc init          <span class="cmt"># accept default local model (Snowflake)</span>
+ccc index         <span class="cmt"># first-time index of all 48 Java files</span>
+
+<span class="cmt"># Structural graph — call graph, blast radius, community clusters</span>
+pipx install graphifyy
+pipx inject graphifyy openai   <span class="cmt"># needed for community labeling</span>
+graphify . --no-llm --force    <span class="cmt"># build structural graph</span>
+graphify label --backend claude-cli  <span class="cmt"># name clusters using Claude</span>
+
+<span class="cmt"># Blast-radius graph</span>
+pip install code-review-graph
+code-review-graph build</code></pre>
+
+      <h3>Step 2 — Wire Claude Code to both indexes</h3>
+      <pre><code><span class="cmt"># Register CocoIndex as MCP server</span>
+claude mcp add cocoindex-code <span class="str">-e COCOINDEX_CODE_ROOT_PATH="C:\AgenticOrchestration\moviesite"</span> -- ccc mcp
+
+<span class="cmt"># Wire Graphify to CLAUDE.md and settings.json</span>
+graphify claude install
+
+<span class="cmt"># Install git hooks for automatic incremental re-index on commit</span>
+graphify hook install</code></pre>
+
+      <h3>Step 3 — The .graphifyignore for this project</h3>
+      <pre><code><span class="cmt"># .graphifyignore — place in moviesite root</span>
+target/
+.mvn/
+*.class
+*.jar
+graphify-out/</code></pre>
+
+      <h3>What Graphify produces for MovieVerse</h3>
+      <p>After the first run, <code>graphify-out/GRAPH_REPORT.md</code> will contain community clusters named by Claude. Expected clusters for this codebase:</p>
+
+      <table class="tool-table">
+        <thead><tr><th>Expected cluster name</th><th>Key files</th><th>God node</th></tr></thead>
+        <tbody>
+          <tr><td>Movie Catalogue Core</td><td>MovieService, MovieRepository, Movie, Genre</td><td>MovieService.java</td></tr>
+          <tr><td>Transactional Booking</td><td>TicketingService, TicketingRepository, Booking, Showtime</td><td>TicketingRepository.java</td></tr>
+          <tr><td>Ratings &amp; Reviews</td><td>RatingService, RatingRepository, RatingSummary</td><td>RatingService.java</td></tr>
+          <tr><td>Financial Analytics</td><td>FinancialService, FinancialRepository, WeeklyRevenue</td><td>FinancialRepository.java</td></tr>
+          <tr><td>Recognition &amp; Awards</td><td>RecognitionService, AwardRepository, Award</td><td>AwardRepository.java</td></tr>
+          <tr><td>Snapshot Moments</td><td>SnapshotService, SnapshotRepository, Snapshot</td><td>SnapshotRepository.java</td></tr>
+          <tr><td>Common Shared Layer</td><td>ApiResponse, GlobalExceptionHandler, exceptions</td><td>ApiResponse.java</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout ct">
+        <strong>Why both indexes?</strong> CocoIndex answers semantic queries: <em>"find all places where seat availability is checked"</em> — without knowing the class name. Graphify answers structural queries: <em>"what breaks if TicketingRepository changes?"</em> — by traversing the call graph. You need both; neither alone is sufficient for the Fix Agent.
+      </div>
+
+      <h3>Incremental update on every commit (git hook)</h3>
+      <pre><code><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># .git/hooks/post-commit — installed automatically by: graphify hook install</span>
+
+CHANGED=$(git diff --name-only HEAD~1 HEAD -- <span class="str">"*.java"</span>)
+
+<span class="kw">if</span> [ -n <span class="str">"$CHANGED"</span> ]; <span class="kw">then</span>
+  <span class="cmt"># Graphify incremental — re-parses only changed Java files</span>
+  nohup graphify update . > /dev/null 2>&1 &
+
+  <span class="cmt"># CocoIndex incremental — re-embeds only changed AST chunks</span>
+  nohup ccc index > /dev/null 2>&1 &
+
+  <span class="cmt"># code-review-graph incremental</span>
+  nohup code-review-graph update > /dev/null 2>&1 &
+
+  echo <span class="str">"[index] Background re-index started for ${#CHANGED} changed files"</span>
+<span class="kw">fi</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ── IMPACT ANALYSIS ── -->
+<section class="section" id="impact">
+  <span class="section-label">Layer 2</span>
+  <h2>Impact analysis — blast radius per service change</h2>
+
+  <div class="layer">
+    <div class="layer-hd">
+      <div class="layer-num" style="background:var(--amber-l);color:var(--amber)">2</div>
+      <div><h3>Change impact map — which files break when X changes</h3>
+      <p>Pre-computed blast radius for the highest-risk nodes in MovieVerse</p></div>
+    </div>
+    <div class="layer-body">
+
+      <h3>Pre-mapped impact table — the six highest-risk changes</h3>
+      <table class="tool-table">
+        <thead>
+          <tr><th>Changed file / method</th><th>Direct dependents</th><th>Transitive dependents</th><th>Tests affected</th><th>Risk</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>MovieService.java (any method)</td>
+            <td>FinancialService, RatingService, SnapshotService, RecognitionService, TicketingService</td>
+            <td>All 6 controllers, all 6 integration tests</td>
+            <td>MovieServiceTest, MovieVerseIntegrationTest (all 22 tests)</td>
+            <td><span class="risk-h">HIGH</span></td>
+          </tr>
+          <tr>
+            <td>MovieRepository.java (findById)</td>
+            <td>MovieService.getMovieById</td>
+            <td>All 5 downstream services via validateMovieExists</td>
+            <td>All integration tests that pass a movieId</td>
+            <td><span class="risk-h">HIGH</span></td>
+          </tr>
+          <tr>
+            <td>TicketingService.bookTickets()</td>
+            <td>TicketingController, TicketingRepository</td>
+            <td>BookingRequest DTO, Booking model</td>
+            <td>TicketingServiceTest (9 tests), bookTickets_success integration test</td>
+            <td><span class="risk-h">HIGH</span></td>
+          </tr>
+          <tr>
+            <td>ApiResponse.java</td>
+            <td>All 6 controllers</td>
+            <td>All 22 integration tests (all expect ApiResponse wrapper)</td>
+            <td>MovieVerseIntegrationTest — all tests</td>
+            <td><span class="risk-h">HIGH</span></td>
+          </tr>
+          <tr>
+            <td>RatingService.submitRating()</td>
+            <td>RatingController, RatingRepository</td>
+            <td>RatingRequest DTO</td>
+            <td>RatingServiceTest, submitRating integration test</td>
+            <td><span class="risk-m">MEDIUM</span></td>
+          </tr>
+          <tr>
+            <td>FinancialRepository.seed()</td>
+            <td>FinancialService.getFinancials()</td>
+            <td>FinancialController endpoints</td>
+            <td>getFinancials_endgame, getWeeklyRevenue, getWeek2</td>
+            <td><span class="risk-l">LOW</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Querying impact in Claude Code</h3>
+      <p>Once Graphify and code-review-graph are installed, a developer asks:</p>
+      <pre><code><span class="str">"I am about to change TicketingService.bookTickets() to add a new
+loyalty points deduction step. Using the knowledge graph at
+graphify-out/GRAPH_REPORT.md and code-review-graph blast-radius,
+find every class, test, and API endpoint that may be impacted.
+Show: (1) direct dependents, (2) transitive dependents,
+(3) all tests to run, (4) risk level."</span></code></pre>
+
+      <h3>Expected impact report output</h3>
+      <pre><code>## Impact Report: TicketingService.java → bookTickets()
+
+### Direct dependents
+- TicketingController.java       (calls bookTickets via POST /bookings)
+- TicketingRepository.java       (bookSeats() called inside bookTickets)
+- BookingRequest.java            (DTO validated inside bookTickets)
+- Booking.java                   (model built and returned)
+
+### Transitive dependents
+- TicketingServiceTest.java      (9 unit tests for bookTickets scenarios)
+- MovieVerseIntegrationTest.java (bookTickets_success, bookTickets_missingFields)
+
+### Spec-linked endpoints at risk
+- POST /api/v1/ticketing/bookings
+- GET  /api/v1/ticketing/bookings/{bookingId}
+- GET  /api/v1/ticketing/bookings/user/{userId}
+
+### Risk level: HIGH
+Reason: bookTickets is the core transactional method.
+Any change to business rules (seat validation, pricing, status)
+breaks all booking-related tests and the transactional API.
+
+### Recommendation
+Run: TicketingServiceTest + bookTickets_* integration tests before merge.
+Manual check: seat availability count after booking (availableSeats decrement).</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ── REGRESSION MAPPING ── -->
+<section class="section" id="regression">
+  <span class="section-label">Layer 3</span>
+  <h2>Regression test mapping — the test manifest</h2>
+
+  <div class="layer">
+    <div class="layer-hd">
+      <div class="layer-num" style="background:var(--coral-l);color:var(--coral)">3</div>
+      <div><h3>test-manifest.json — links every file to the tests that cover it</h3>
+      <p>Built once by the Regression Mapper Agent · updated incrementally on every delta</p></div>
+    </div>
+    <div class="layer-body">
+
+      <h3>The complete test manifest for MovieVerse</h3>
+      <p>This is the pre-built manifest mapping every production file to its covering tests. The Regression Mapper Agent generates and maintains this file.</p>
+
+      <table class="manifest">
+        <thead>
+          <tr><th>Production file changed</th><th>Unit tests to run</th><th>Integration tests to run</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>movie/service/MovieService.java</td>
+            <td>MovieServiceTest (all 6 tests)</td>
+            <td>getAllMovies, getMovieById, getMovieNotFound, getByYear, getByGenre, getByDirector</td>
+          </tr>
+          <tr>
+            <td>movie/repository/MovieRepository.java</td>
+            <td>MovieServiceTest (getMovieById, validateMovieExists)</td>
+            <td>Full suite — all 22 integration tests depend on seeded movie data</td>
+          </tr>
+          <tr>
+            <td>movie/model/Movie.java</td>
+            <td>MovieServiceTest</td>
+            <td>getMovieById — verifies field structure of Movie response</td>
+          </tr>
+          <tr>
+            <td>financial/service/FinancialService.java</td>
+            <td>—</td>
+            <td>getFinancials_endgame, getWeeklyRevenue, getWeek2</td>
+          </tr>
+          <tr>
+            <td>financial/repository/FinancialRepository.java</td>
+            <td>—</td>
+            <td>getFinancials_endgame, getWeeklyRevenue, getWeek2</td>
+          </tr>
+          <tr>
+            <td>rating/service/RatingService.java</td>
+            <td>RatingServiceTest (all 4 tests)</td>
+            <td>getRatingSummary, submitRating, submitRating_invalidScore</td>
+          </tr>
+          <tr>
+            <td>rating/dto/RatingRequest.java</td>
+            <td>RatingServiceTest.submitRating_duplicateRating</td>
+            <td>submitRating_invalidScore (validates DTO constraints)</td>
+          </tr>
+          <tr>
+            <td>snapshot/service/SnapshotService.java</td>
+            <td>—</td>
+            <td>getSnapshots, getIconicSnapshots</td>
+          </tr>
+          <tr>
+            <td>recognition/service/RecognitionService.java</td>
+            <td>—</td>
+            <td>getRecognitionSummary_eeaao, getWins_parasite, getByCeremony</td>
+          </tr>
+          <tr>
+            <td>recognition/repository/AwardRepository.java</td>
+            <td>—</td>
+            <td>getRecognitionSummary_eeaao — verifies oscarWins count</td>
+          </tr>
+          <tr>
+            <td>ticketing/service/TicketingService.java</td>
+            <td>TicketingServiceTest (all 9 tests)</td>
+            <td>bookTickets_success, bookTickets_missingFields, getSeatAvailability</td>
+          </tr>
+          <tr>
+            <td>ticketing/repository/TicketingRepository.java</td>
+            <td>TicketingServiceTest.cancelBooking_success</td>
+            <td>getCinemas, getShowtimesForMovie, getSeatAvailability, bookTickets_success</td>
+          </tr>
+          <tr>
+            <td>ticketing/model/Booking.java</td>
+            <td>TicketingServiceTest (bookTickets_success, premiumPricing)</td>
+            <td>bookTickets_success — verifies Booking JSON structure</td>
+          </tr>
+          <tr>
+            <td>common/response/ApiResponse.java</td>
+            <td>—</td>
+            <td>ALL 22 integration tests — every endpoint returns ApiResponse wrapper</td>
+          </tr>
+          <tr>
+            <td>common/exception/GlobalExceptionHandler.java</td>
+            <td>—</td>
+            <td>getMovieNotFound, submitRating_invalidScore, bookTickets_missingFields</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>The test manifest file — machine-readable format</h3>
+      <pre><code><span class="cmt">// test-manifest.json — stored at project root</span>
+{
+  <span class="str">"version"</span>: <span class="str">"1.0"</span>,
+  <span class="str">"generated_by"</span>: <span class="str">"RegressionMapperAgent"</span>,
+  <span class="str">"entries"</span>: [
+    {
+      <span class="str">"file"</span>: <span class="str">"src/main/java/com/movieverse/ticketing/service/TicketingService.java"</span>,
+      <span class="str">"sha256"</span>: <span class="str">"&lt;hash at map time&gt;"</span>,
+      <span class="str">"unit_tests"</span>: [<span class="str">"com.movieverse.TicketingServiceTest"</span>],
+      <span class="str">"integration_tests"</span>: [
+        <span class="str">"bookTickets_success"</span>,
+        <span class="str">"bookTickets_missingFields"</span>,
+        <span class="str">"getSeatAvailability"</span>
+      ],
+      <span class="str">"risk"</span>: <span class="str">"HIGH"</span>
+    },
+    {
+      <span class="str">"file"</span>: <span class="str">"src/main/java/com/movieverse/movie/service/MovieService.java"</span>,
+      <span class="str">"sha256"</span>: <span class="str">"&lt;hash at map time&gt;"</span>,
+      <span class="str">"unit_tests"</span>: [<span class="str">"com.movieverse.MovieServiceTest"</span>],
+      <span class="str">"integration_tests"</span>: [<span class="str">"*"</span>],
+      <span class="str">"risk"</span>: <span class="str">"HIGH"</span>
+    }
+  ]
+}</code></pre>
+
+      <h3>Running targeted tests from the manifest</h3>
+      <pre><code><span class="cmt"># CI script: given changed Java files, find and run only relevant tests</span>
+CHANGED=$(git diff --name-only HEAD~1 HEAD -- "*.java")
+
+<span class="cmt"># Query manifest for tests covering changed files</span>
+TESTS=$(python3 scripts/find_tests.py --manifest test-manifest.json --changed "$CHANGED")
+
+<span class="cmt"># Run only those tests — not the full suite</span>
+mvn test -Dtest="$TESTS" -pl .
+
+<span class="cmt"># Example: changing TicketingService.java runs only:</span>
+<span class="cmt"># TicketingServiceTest,MovieVerseIntegrationTest#bookTickets_success+bookTickets_missingFields</span>
+<span class="cmt"># NOT the full 35-test suite</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ── AGENTS ── -->
+<section class="section" id="agents">
+  <span class="section-label">Agent design</span>
+  <h2>Four specialised agents — each with one responsibility</h2>
+
+  <div class="agent-grid">
+
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-icon" style="background:var(--teal-l)">🔍</div>
+        <div><div class="agent-name">Impact Finder Agent</div><div class="agent-role">P1 + P2 — semantic search + blast radius</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2)">Given any changed MovieVerse file, queries Graphify graph + CocoIndex semantics + CRG blast-radius to return all affected classes, tests, and API endpoints with risk classification.</p>
+      <div class="agent-tools">
+        <span class="atool">graphify query</span>
+        <span class="atool">graphify path</span>
+        <span class="atool">ccc search</span>
+        <span class="atool">CRG blast-radius</span>
+        <span class="atool">GRAPH_REPORT.md</span>
+      </div>
+      <pre style="margin-top:10px;font-size:11.5px"><code><span class="cmt">// Example invocation</span>
+<span class="str">"TicketingService.bookTickets() has changed.
+Find all impacted classes, tests, and endpoints
+using the knowledge graph. Output structured JSON."</span></code></pre>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-icon" style="background:var(--amber-l)">🧪</div>
+        <div><div class="agent-name">Regression Mapper Agent</div><div class="agent-role">P2 — maps delta to exact tests from manifest</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2)">Takes Impact Finder output, queries test-manifest.json, returns the minimal set of unit and integration tests that must run. Updates the manifest when code structure changes.</p>
+      <div class="agent-tools">
+        <span class="atool">test-manifest.json</span>
+        <span class="atool">CRG coverage edges</span>
+        <span class="atool">mvn test runner</span>
+      </div>
+      <pre style="margin-top:10px;font-size:11.5px"><code><span class="cmt">// Output: tests to run</span>
+<span class="str">TicketingServiceTest,
+MovieVerseIntegrationTest#bookTickets_success</span></code></pre>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-icon" style="background:var(--purple-l)">🗂️</div>
+        <div><div class="agent-name">Delta Indexer Agent</div><div class="agent-role">P1 — keeps both indexes fresh on every commit</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2)">Runs in the post-commit git hook. SHA-256 compares changed Java files against the stored hash manifest. Triggers incremental re-index of only the changed files in Graphify, CocoIndex, and CRG.</p>
+      <div class="agent-tools">
+        <span class="atool">git hash-object</span>
+        <span class="atool">ccc index</span>
+        <span class="atool">graphify update</span>
+        <span class="atool">CRG update</span>
+      </div>
+      <pre style="margin-top:10px;font-size:11.5px"><code><span class="cmt">// Reports after each commit</span>
+<span class="str">"3 files re-indexed (TicketingService,
+TicketingRepository, Booking).
+2 test mappings updated in manifest."</span></code></pre>
+    </div>
+
+    <div class="agent-card">
+      <div class="agent-head">
+        <div class="agent-icon" style="background:var(--coral-l)">📋</div>
+        <div><div class="agent-name">PR Reviewer Agent</div><div class="agent-role">Orchestrator — runs all agents on every PR</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2)">Triggered by GitHub Actions on PR open. Runs Impact Finder → Regression Mapper → Fix Agent → posts a unified comment on the PR with impact report, tests to run, and proposed fixes.</p>
+      <div class="agent-tools">
+        <span class="atool">Impact Finder</span>
+        <span class="atool">Regression Mapper</span>
+        <span class="atool">Fix Agent</span>
+        <span class="atool">GitHub PR API</span>
+      </div>
+      <pre style="margin-top:10px;font-size:11.5px"><code><span class="cmt">// PR comment summary</span>
+<span class="str">"Changed: TicketingService.bookTickets
+Blast radius: 4 files, 11 tests
+Risk: HIGH · Fix proposed for Booking.java
+Tests: TicketingServiceTest ✅ PASS"</span></code></pre>
+    </div>
+
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ── FIX AGENT ── -->
+<section class="section" id="fix-agent">
+  <span class="section-label">The new agent — P3</span>
+  <h2>Fix Agent — proposes targeted corrections for impacted delta code</h2>
+
+  <div class="layer">
+    <div class="layer-hd">
+      <div class="layer-num" style="background:var(--green-l);color:var(--green)">★</div>
+      <div><h3>Delta Fix Agent — reads what changed, proposes surgical fixes</h3>
+      <p>Does not rewrite files · reads only the impacted symbols · proposes minimal diff · references existing patterns</p></div>
+    </div>
+    <div class="layer-body">
+
+      <h3>How it works — four-step reasoning loop</h3>
+
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-n">1</div>
+          <div class="pipe-content">
+            <div class="pipe-title">Read the delta <span class="pipe-tag tag-auto">Auto</span></div>
+            <div class="pipe-desc">Agent calls <code>git diff HEAD~1 HEAD -- *.java</code> to get the exact lines that changed. It does not read whole files — only the diff hunks, plus 10 lines of context around each change.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-n">2</div>
+          <div class="pipe-content">
+            <div class="pipe-title">Query the graph for impacted symbols <span class="pipe-tag tag-agent">Agent</span></div>
+            <div class="pipe-desc">Calls <code>graphify path &lt;changed-class&gt; &lt;impacted-class&gt;</code> for each impacted class identified by the Impact Finder. Retrieves only the specific methods/symbols at risk — not entire files.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-n">3</div>
+          <div class="pipe-content">
+            <div class="pipe-title">Analyse and propose fix <span class="pipe-tag tag-agent">Agent</span></div>
+            <div class="pipe-desc">For each impacted symbol, the agent reads the current implementation (via CocoIndex semantic search returning the exact method body), understands the breaking change, and proposes a minimal diff that adapts the impacted code to the new contract.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-n late">4</div>
+          <div class="pipe-content">
+            <div class="pipe-title">Generate fix as unified diff <span class="pipe-tag tag-fix">Fix</span></div>
+            <div class="pipe-desc">Output is a standard <code>.patch</code> file — a unified diff that can be reviewed and applied with <code>git apply fix.patch</code>. Human reviews it before anything is committed.</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Fix Agent system prompt</h3>
+      <pre><code><span class="cmt"># .claude/fix-agent-system-prompt.md</span>
+
+You are a surgical code fix agent for the MovieVerse Spring Boot application.
+
+Architecture:
+- 6 domain services: movie, financial, rating, snapshot, recognition, ticketing
+- Every service calls MovieService.validateMovieExists() or getMovieById()
+- Common layer: ApiResponse&lt;T&gt;, GlobalExceptionHandler, ResourceNotFoundException
+- All repositories are in-memory ConcurrentHashMap — no physical database
+- Java 21, Spring Boot 3.2, Lombok builders throughout
+
+PROCESS — follow this exactly:
+1. Read the git diff to understand what changed (the delta)
+2. Call graphify to find impacted classes — do NOT scan all files
+3. Use ccc search to retrieve only the impacted method bodies
+4. For each impacted method: explain what broke and why
+5. Propose a minimal fix as a unified diff
+6. Never rewrite an entire file — only the affected methods
+7. Reference existing patterns in the codebase (Lombok @Builder, ApiResponse.success(), etc.)
+8. If a test needs updating, propose the test fix alongside the code fix
+
+OUTPUT FORMAT:
+## Impact summary
+[1-2 sentences on what changed and why it breaks downstream]
+
+## Proposed fix: &lt;ClassName&gt;.&lt;methodName&gt;
+```diff
+- old code
++ new code
+```
+
+## Test update required: &lt;TestClass&gt;.&lt;testMethod&gt;
+```diff
+- old assertion
++ new assertion
+```</code></pre>
+
+      <h3>Worked example — adding a <code>loyaltyPoints</code> field to Booking</h3>
+      <p>Scenario: developer adds <code>loyaltyPointsEarned</code> field to <code>Booking.java</code> and initialises it in <code>TicketingService.bookTickets()</code>.</p>
+
+      <pre><code><span class="cmt">// Developer's change — Booking.java</span>
+@Data @Builder
+<span class="kw">public class</span> <span class="fn">Booking</span> {
+    <span class="cmt">// ... existing fields ...</span>
++   <span class="kw">private int</span> loyaltyPointsEarned;  <span class="cmt">// NEW FIELD</span>
+}</code></pre>
+
+      <p>Fix Agent identifies the blast radius, then proposes:</p>
+
+      <pre><code><span class="cmt">## Impact summary</span>
+Booking.java gained a new field loyaltyPointsEarned. TicketingService.bookTickets()
+must populate it. The TicketingServiceTest assertions that verify Booking fields
+need updating to expect the new field. No other services are affected since
+Booking is only used within the ticketing domain.
+
+<span class="cmt">## Proposed fix: TicketingService.bookTickets()</span>
+<span class="cmt">--- a/TicketingService.java</span>
+<span class="cmt">+++ b/TicketingService.java</span>
+@@ -build section @@
+         .confirmationCode(UUID.randomUUID().toString().substring(0,8).toUpperCase())
++        .loyaltyPointsEarned(request.getNumberOfTickets() * 10)
+         .build();
+
+<span class="cmt">## Test update: TicketingServiceTest.bookTickets_success()</span>
+<span class="cmt">--- a/TicketingServiceTest.java</span>
+<span class="cmt">+++ b/TicketingServiceTest.java</span>
+@@ -assertion section @@
+         assertThat(result.getStatus()).isEqualTo(BookingStatus.CONFIRMED);
++        assertThat(result.getLoyaltyPointsEarned()).isEqualTo(20); // 2 tickets × 10
+
+<span class="cmt">## Test update: TicketingServiceTest.bookTickets_premiumPricing()</span>
++        assertThat(result.getLoyaltyPointsEarned()).isEqualTo(20); // 2 tickets × 10</code></pre>
+
+      <h3>Applying the fix</h3>
+      <pre><code><span class="cmt"># Review the proposed patch</span>
+cat fix.patch
+
+<span class="cmt"># Apply it to the working tree</span>
+git apply fix.patch
+
+<span class="cmt"># Run the targeted tests immediately</span>
+mvn test -Dtest="TicketingServiceTest"
+
+<span class="cmt"># If tests pass, commit</span>
+git add .
+git commit -m "fix: populate loyaltyPointsEarned in bookTickets per Fix Agent recommendation"</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ── CI PIPELINE ── -->
+<section class="section" id="pipeline">
+  <span class="section-label">CI pipeline</span>
+  <h2>Complete automated pipeline on every PR</h2>
+
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-n">1</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Developer commits Java change <span class="pipe-tag tag-human">Developer</span></div>
+        <div class="pipe-desc">Any <code>.java</code> file in any of the 6 domain packages. Git post-commit hook fires in background — developer is not blocked. Delta Indexer re-indexes only changed files.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">2</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Delta Indexer runs <span class="pipe-tag tag-auto">Auto · background</span></div>
+        <div class="pipe-desc">SHA-256 compares changed files to <code>.index/hashes.json</code>. Triggers <code>graphify update .</code>, <code>ccc index</code>, and <code>code-review-graph update</code> in parallel background processes. Completes in under 2 seconds for a typical 1–3 file commit.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">3</div>
+      <div class="pipe-content">
+        <div class="pipe-title">PR opened → GitHub Actions <span class="pipe-tag tag-auto">CI</span></div>
+        <div class="pipe-desc">GitHub Actions workflow fires. Checks out code, verifies both indexes are current by comparing current file hashes to stored hashes. Re-indexes if stale.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">4</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Impact Finder Agent runs <span class="pipe-tag tag-agent">Agent</span></div>
+        <div class="pipe-desc">Reads changed files from <code>git diff --name-only</code>. Queries Graphify graph + CRG blast-radius. Returns structured JSON: affected classes, risk level, impacted endpoints, test list.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">5</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Regression Mapper Agent runs <span class="pipe-tag tag-agent">Agent</span></div>
+        <div class="pipe-desc">Takes Impact Finder JSON. Queries <code>test-manifest.json</code> for covering tests. Returns minimal test set: unit tests + integration test methods. Typically 3–11 tests, not the full 35.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n">6</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Fix Agent runs <span class="pipe-tag tag-fix">Fix Agent</span></div>
+        <div class="pipe-desc">For HIGH-risk changes: reads delta, queries impacted symbols, proposes a <code>.patch</code> file. Attached to PR comment as a downloadable artifact. Developer reviews and applies with <code>git apply</code>.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n late">7</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Targeted tests run <span class="pipe-tag tag-auto">CI</span></div>
+        <div class="pipe-desc">Only the tests from the Regression Mapper output run: <code>mvn test -Dtest="..."</code>. Pass/fail result determines whether the PR can proceed. Typically completes in under 30 seconds.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n late">8</div>
+      <div class="pipe-content">
+        <div class="pipe-title">PR comment posted <span class="pipe-tag tag-auto">Auto</span></div>
+        <div class="pipe-desc">PR Reviewer Agent posts unified comment: changed files, blast radius, test results, risk level, and link to the Fix Agent patch file.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-n late">9</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Merge gate <span class="pipe-tag tag-gate">Gate</span></div>
+        <div class="pipe-desc">Blocks merge if: (a) HIGH-risk change with no reviewer approval, (b) targeted tests failed, (c) Impact Finder found blast radius touching <code>MovieService</code> without a full integration test run.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>GitHub Actions workflow</h3>
+  <pre><code><span class="cmt"># .github/workflows/movieverse-impact.yml</span>
+<span class="tg">name:</span> <span class="str">MovieVerse Impact Analysis</span>
+<span class="tg">on:</span>
+  <span class="tg">pull_request:</span>
+    <span class="tg">types:</span> [opened, synchronize]
+    <span class="tg">paths:</span> [<span class="str">'src/**/*.java'</span>]
+
+<span class="tg">jobs:</span>
+  <span class="tg">impact-and-fix:</span>
+    <span class="tg">runs-on:</span> ubuntu-latest
+    <span class="tg">steps:</span>
+      - <span class="tg">uses:</span> actions/checkout@v4
+        <span class="tg">with:</span> { fetch-depth: 2 }
+
+      - <span class="tg">name:</span> Set up Java 21
+        <span class="tg">uses:</span> actions/setup-java@v4
+        <span class="tg">with:</span> { java-version: <span class="str">'21'</span>, distribution: <span class="str">'temurin'</span> }
+
+      - <span class="tg">name:</span> Install indexing tools
+        <span class="tg">run:</span> |
+          pip install graphifyy code-review-graph
+          pipx install <span class="str">'cocoindex-code[full]'</span>
+
+      - <span class="tg">name:</span> Build + verify indexes current
+        <span class="tg">run:</span> |
+          graphify . --no-llm --force
+          ccc index
+          code-review-graph build
+
+      - <span class="tg">name:</span> Get changed Java files
+        <span class="tg">run:</span> |
+          git diff --name-only HEAD~1 HEAD -- <span class="str">"*.java"</span> > changed.txt
+          cat changed.txt
+
+      - <span class="tg">name:</span> Run Impact Finder Agent
+        <span class="tg">env:</span>
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        <span class="tg">run:</span> |
+          claude -p \
+            --system-prompt <span class="str">"$(cat .claude/impact-finder-system-prompt.md)"</span> \
+            <span class="str">"Analyse impact of: $(cat changed.txt). Use graph + CRG. Output JSON."</span> \
+            > impact-report.json
+
+      - <span class="tg">name:</span> Run Regression Mapper Agent
+        <span class="tg">run:</span> |
+          claude -p <span class="str">"Given impact: $(cat impact-report.json), query test-manifest.json,
+          return exact mvn -Dtest string."</span> > tests-to-run.txt
+
+      - <span class="tg">name:</span> Run Fix Agent (HIGH risk only)
+        <span class="tg">run:</span> |
+          RISK=$(cat impact-report.json | python3 -c <span class="str">"import json,sys; print(json.load(sys.stdin).get('risk','LOW'))"</span>)
+          <span class="kw">if</span> [ <span class="str">"$RISK"</span> = <span class="str">"HIGH"</span> ]; <span class="kw">then</span>
+            claude -p \
+              --system-prompt <span class="str">"$(cat .claude/fix-agent-system-prompt.md)"</span> \
+              <span class="str">"Delta: $(git diff HEAD~1 HEAD -- '*.java'). Propose fix patch."</span> \
+              > fix.patch
+          <span class="kw">fi</span>
+
+      - <span class="tg">name:</span> Run targeted regression tests
+        <span class="tg">run:</span> |
+          mvn test -Dtest="$(cat tests-to-run.txt)" --no-transfer-progress
+
+      - <span class="tg">name:</span> Post PR comment
+        <span class="tg">uses:</span> actions/github-script@v7
+        <span class="tg">with:</span>
+          <span class="tg">script:</span> |
+            <span class="kw">const</span> fs = require(<span class="str">'fs'</span>);
+            <span class="kw">const</span> impact = JSON.parse(fs.readFileSync(<span class="str">'impact-report.json'</span>));
+            <span class="kw">const</span> tests = fs.readFileSync(<span class="str">'tests-to-run.txt'</span>, <span class="str">'utf8'</span>);
+            <span class="kw">const</span> hasFix = fs.existsSync(<span class="str">'fix.patch'</span>);
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: <span class="str">`## MovieVerse Impact Report
+**Risk:** ${impact.risk} | **Blast radius:** ${impact.affected_files?.length ?? 0} files
+**Tests to run:** \`${tests.trim()}\`
+${hasFix ? '**Fix Agent:** patch attached — review and apply with \`git apply fix.patch\`' : ''}
+`</span>
+            });
+
+      - <span class="tg">name:</span> Upload fix patch as artifact
+        <span class="tg">if:</span> always()
+        <span class="tg">uses:</span> actions/upload-artifact@v4
+        <span class="tg">with:</span>
+          <span class="tg">name:</span> fix-agent-patch
+          <span class="tg">path:</span> fix.patch
+          <span class="tg">if-no-files-found:</span> ignore</code></pre>
+</section>
+
+<hr class="div">
+
+<!-- ── DESIGN DECISIONS ── -->
+<section class="section" id="decisions">
+  <span class="section-label">Design decisions</span>
+  <h2>Key decisions specific to MovieVerse</h2>
+
+  <div class="dtable">
+    <div class="dl">MovieService as the god node</div>
+    <div class="dr">Every service in MovieVerse calls <code>MovieService.validateMovieExists()</code>. This is intentional — it means changing <code>Movie.java</code> or <code>MovieService</code> is always a HIGH-risk change and always triggers the full integration test suite. The Impact Finder treats this as a hardcoded rule, not something discovered dynamically.</div>
+    <div class="dl">Fix Agent generates diffs not files</div>
+    <div class="dr">The Fix Agent outputs a <code>.patch</code> file — a unified diff — not modified source files. This preserves human review in the loop: the developer applies it with <code>git apply</code> after inspection. It also means the agent only needs to see the changed method, not the entire file, which reduces token cost significantly.</div>
+    <div class="dl">In-memory repositories need seed validation</div>
+    <div class="dr">MovieVerse uses <code>@PostConstruct</code> seed methods in all repositories. Any change to a model (adding a field, changing a type) can silently break the seed data. The Fix Agent's system prompt explicitly instructs it to check seed methods in repository classes when model files change.</div>
+    <div class="dl">CocoIndex for semantic, Graphify for structural</div>
+    <div class="dr">CocoIndex finds code by meaning ("find all places that validate seat availability") — needed for the Fix Agent to locate the exact method to fix without knowing the class name. Graphify finds structural relationships ("what imports TicketingService?") — needed for the Impact Finder to compute blast radius. Both are needed; they are not interchangeable.</div>
+    <div class="dl">Targeted tests only</div>
+    <div class="dr">The full MovieVerse suite has 35 tests. Running all 35 on every PR takes ~45 seconds. The Regression Mapper limits runs to 3–11 tests per typical change. This makes the CI loop fast enough to iterate — a 10-second run instead of 45 seconds encourages developers to push small commits rather than batching.</div>
+    <div class="dl">Fix Agent runs only on HIGH risk</div>
+    <div class="dr">Running the Fix Agent on every commit would generate noise on trivial changes (renaming a variable, adding a comment). The CI workflow gates it on the Impact Finder's risk classification: LOW and MEDIUM changes get impact + tests only; HIGH risk triggers the full Fix Agent pass.</div>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- ── REFERENCES ── -->
+<section class="section" id="refs">
+  <span class="section-label">References</span>
+  <h2>Tools and documentation</h2>
+
+  <h3>Indexing tools</h3>
+  <ul class="ref-list">
+    <li><div class="ref-num">1</div><div><a href="https://github.com/safishamsi/graphify" target="_blank">Graphify — safishamsi/graphify</a><br>Knowledge graph builder for Java, TSX, Python and 25+ languages. Community detection, MCP server, incremental updates.</div></li>
+    <li><div class="ref-num">2</div><div><a href="https://cocoindex.io/cocoindex-code/" target="_blank">CocoIndex Code — cocoindex.io</a><br>AST-aware semantic code search MCP. Tree-sitter chunking, PGVector embeddings. Java + all major languages.</div></li>
+    <li><div class="ref-num">3</div><div><a href="https://github.com/tirth8205/code-review-graph" target="_blank">code-review-graph — tirth8205/code-review-graph</a><br>Local-first blast-radius graph. SHA-256 incremental updates. 2,900-file repos re-index in under 2 seconds.</div></li>
+    <li><div class="ref-num">4</div><div><a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank">Codebase-Memory — DeusData/codebase-memory-mcp</a><br>158-language knowledge graph, 14 MCP tools, sub-millisecond queries via SQLite.</div></li>
+  </ul>
+
+  <h3>Spring Boot and Java tooling</h3>
+  <ul class="ref-list">
+    <li><div class="ref-num">5</div><div><a href="https://docs.spring.io/spring-boot/docs/3.2.x/reference/html/" target="_blank">Spring Boot 3.2 Reference Documentation</a><br>@PostConstruct, @RestController, @RestControllerAdvice, validation, actuator.</div></li>
+    <li><div class="ref-num">6</div><div><a href="https://projectlombok.org/features/" target="_blank">Lombok features reference — projectlombok.org</a><br>@Builder, @Data, @RequiredArgsConstructor, @Slf4j used throughout MovieVerse.</div></li>
+    <li><div class="ref-num">7</div><div><a href="https://springdoc.org/" target="_blank">SpringDoc OpenAPI 2.3 — springdoc.org</a><br>Auto-generated Swagger UI at /swagger-ui.html from @Operation and @Tag annotations.</div></li>
+    <li><div class="ref-num">8</div><div><a href="https://site.mockito.org/" target="_blank">Mockito — site.mockito.org</a><br>@Mock, @InjectMocks, when/thenReturn patterns used in all unit test classes.</div></li>
+  </ul>
+
+  <h3>CI and agent orchestration</h3>
+  <ul class="ref-list">
+    <li><div class="ref-num">9</div><div><a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank">Claude Code documentation — docs.anthropic.com</a><br>Agent CLI (-p headless mode), CLAUDE.md, MCP wiring, system prompts, git hooks.</div></li>
+    <li><div class="ref-num">10</div><div><a href="https://docs.github.com/en/actions" target="_blank">GitHub Actions documentation</a><br>Workflow triggers on pull_request, path filters, artifact upload, PR comment API.</div></li>
+    <li><div class="ref-num">11</div><div><a href="https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html" target="_blank">Maven Surefire -Dtest parameter</a><br>Running individual test classes or methods: <code>mvn test -Dtest="TicketingServiceTest#bookTickets_success"</code>.</div></li>
+  </ul>
+
+  <h3>Architecture references from this conversation</h3>
+  <ul class="ref-list">
+    <li><div class="ref-num">12</div><div><strong>Multi-Repo Impact Analysis Blueprint</strong> (uploaded — the source document this plan is based on)<br>Three-problem framing, test manifest pattern, four-agent design, SHA-256 delta indexing, CI pipeline structure.</div></li>
+    <li><div class="ref-num">13</div><div><strong>MovieVerse Spring Boot Application</strong> (generated in this session)<br>48 Java files across 6 domain services. 35 tests (MovieServiceTest, RatingServiceTest, TicketingServiceTest, MovieVerseIntegrationTest). pom.xml, application.properties.</div></li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <p>MovieVerse Impact Analysis, Regression &amp; Delta Fix Agent Blueprint · Spring Boot 3.2 · Java 21 · June 2026</p>
+  <p style="margin-top:5px">Graphify · CocoIndex · code-review-graph · Claude Code agents · GitHub Actions · Maven Surefire</p>
+</footer>
+
+<script>
+const secs = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('nav a[href^="#"]');
+secs.forEach(s => new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    const id = entries[0].target.id;
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+  }
+}, {rootMargin: '-20% 0px -70% 0px'}).observe(s));
+</script>
+</body>
+</html>
