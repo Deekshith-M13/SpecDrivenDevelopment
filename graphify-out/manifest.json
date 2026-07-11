@@ -1,0 +1,402 @@
+{
+  ".specify/extensions/agent-context/scripts/bash/update-agent-context.sh": {
+    "mtime": 1783754880.9550023,
+    "ast_hash": "0292180d5316ad7ab013c48803f5e62a",
+    "semantic_hash": "0292180d5316ad7ab013c48803f5e62a"
+  },
+  ".specify/extensions/agent-context/scripts/powershell/update-agent-context.ps1": {
+    "mtime": 1783754880.9559743,
+    "ast_hash": "b078997218d5663bf35f355da4da1c86",
+    "semantic_hash": "b078997218d5663bf35f355da4da1c86"
+  },
+  ".specify/feature.json": {
+    "mtime": 1783754880.9559743,
+    "ast_hash": "c2df82777cf3c7c851a94f83661db678",
+    "semantic_hash": "c2df82777cf3c7c851a94f83661db678"
+  },
+  ".specify/init-options.json": {
+    "mtime": 1783754880.9559743,
+    "ast_hash": "e45f4abbfc13f657d6263a23d8d542c6",
+    "semantic_hash": "e45f4abbfc13f657d6263a23d8d542c6"
+  },
+  ".specify/integration.json": {
+    "mtime": 1783754880.9559743,
+    "ast_hash": "793a2a9076379ae7914b238644c25fd2",
+    "semantic_hash": "793a2a9076379ae7914b238644c25fd2"
+  },
+  ".specify/integrations/copilot.manifest.json": {
+    "mtime": 1783754880.9584162,
+    "ast_hash": "351769e9b56e466a21cdcace4af7ad17",
+    "semantic_hash": "351769e9b56e466a21cdcace4af7ad17"
+  },
+  ".specify/integrations/speckit.manifest.json": {
+    "mtime": 1783754880.9584162,
+    "ast_hash": "790a5f05db5db52671ad697a8e2ce998",
+    "semantic_hash": "790a5f05db5db52671ad697a8e2ce998"
+  },
+  ".specify/scripts/powershell/check-prerequisites.ps1": {
+    "mtime": 1783754880.9623554,
+    "ast_hash": "609656bcd71c74d06b587b4a6a4becd1",
+    "semantic_hash": "609656bcd71c74d06b587b4a6a4becd1"
+  },
+  ".specify/scripts/powershell/common.ps1": {
+    "mtime": 1783754880.9628646,
+    "ast_hash": "b180279417fe2e90fbea998a6c95fec5",
+    "semantic_hash": "b180279417fe2e90fbea998a6c95fec5"
+  },
+  ".specify/scripts/powershell/create-new-feature.ps1": {
+    "mtime": 1783754880.9643846,
+    "ast_hash": "3b4c89840070563b3568aeae84aa2042",
+    "semantic_hash": "3b4c89840070563b3568aeae84aa2042"
+  },
+  ".specify/scripts/powershell/setup-plan.ps1": {
+    "mtime": 1783754880.9652326,
+    "ast_hash": "061793d447d162df2624d2fcb796fbe2",
+    "semantic_hash": "061793d447d162df2624d2fcb796fbe2"
+  },
+  ".specify/scripts/powershell/setup-tasks.ps1": {
+    "mtime": 1783754880.9652326,
+    "ast_hash": "4c185009d61c8da4a45d17a0a86ff546",
+    "semantic_hash": "4c185009d61c8da4a45d17a0a86ff546"
+  },
+  ".specify/scripts/revert/invert_delta.py": {
+    "mtime": 1783754880.9683228,
+    "ast_hash": "99a5d6357f96c617b63a2650b1d26395",
+    "semantic_hash": "99a5d6357f96c617b63a2650b1d26395"
+  },
+  ".specify/scripts/revert/read_archive.py": {
+    "mtime": 1783754880.9683228,
+    "ast_hash": "691fad193478ddca16a0edb7bf6e77a2",
+    "semantic_hash": "691fad193478ddca16a0edb7bf6e77a2"
+  },
+  ".specify/scripts/revert/speckit_revert.py": {
+    "mtime": 1783754880.9683228,
+    "ast_hash": "cd35328d7bd3bc029b5791471d67c71d",
+    "semantic_hash": "cd35328d7bd3bc029b5791471d67c71d"
+  },
+  ".specify/scripts/revert/write_reverse_delta.py": {
+    "mtime": 1783754880.9683228,
+    "ast_hash": "e3134e1facb5abf846073cf50df41a77",
+    "semantic_hash": "e3134e1facb5abf846073cf50df41a77"
+  },
+  ".specify/workflows/workflow-registry.json": {
+    "mtime": 1783754880.9775264,
+    "ast_hash": "5168e806e458611a6ac7a1a549e049ba",
+    "semantic_hash": "5168e806e458611a6ac7a1a549e049ba"
+  },
+  "llmlingua-middleware/server.py": {
+    "mtime": 1783754880.9851005,
+    "ast_hash": "1c0e301bf97786e87ba796ab36e0c549",
+    "semantic_hash": "1c0e301bf97786e87ba796ab36e0c549"
+  },
+  "mcp-server/mcp-server.js": {
+    "mtime": 1783754880.9851005,
+    "ast_hash": "dbcce3660622e5b6e155b8bdcbeb8a94",
+    "semantic_hash": "dbcce3660622e5b6e155b8bdcbeb8a94"
+  },
+  "mcp-server/package.json": {
+    "mtime": 1783754880.9878285,
+    "ast_hash": "bebf9ba4e181da23082efee864703229",
+    "semantic_hash": "bebf9ba4e181da23082efee864703229"
+  },
+  "movieverse/movieverse/pom.xml": {
+    "mtime": 1783754880.9895842,
+    "ast_hash": "7f664517bec146d947a77700e251eb8b",
+    "semantic_hash": "7f664517bec146d947a77700e251eb8b"
+  },
+  "movieverse/movieverse/scripts/token_helper.py": {
+    "mtime": 1783754880.9978333,
+    "ast_hash": "823ce49622369b65bfceb7f046b75ee6",
+    "semantic_hash": "823ce49622369b65bfceb7f046b75ee6"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/MovieVerseApplication.java": {
+    "mtime": 1783754881.0034506,
+    "ast_hash": "8a3c6177a7fe80c4550dc215dd4175e1",
+    "semantic_hash": "8a3c6177a7fe80c4550dc215dd4175e1"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/common/config/OpenApiConfig.java": {
+    "mtime": 1783754881.0034506,
+    "ast_hash": "3ca70631f23fa0cf535ca8f45fb8ba91",
+    "semantic_hash": "3ca70631f23fa0cf535ca8f45fb8ba91"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/common/exception/BusinessException.java": {
+    "mtime": 1783754881.0034506,
+    "ast_hash": "8ecd7f6c1e550ec1fb0e6941810c85a4",
+    "semantic_hash": "8ecd7f6c1e550ec1fb0e6941810c85a4"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/common/exception/GlobalExceptionHandler.java": {
+    "mtime": 1783754881.0069613,
+    "ast_hash": "a757a8fac81687bbba87cc4eab24362b",
+    "semantic_hash": "a757a8fac81687bbba87cc4eab24362b"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/common/exception/ResourceNotFoundException.java": {
+    "mtime": 1783754881.0069613,
+    "ast_hash": "3430c5aadee37a413bfa98102341ea15",
+    "semantic_hash": "3430c5aadee37a413bfa98102341ea15"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/common/response/ApiResponse.java": {
+    "mtime": 1783754881.0081906,
+    "ast_hash": "68fc3ce49e6b99a878a65898ce1049d0",
+    "semantic_hash": "68fc3ce49e6b99a878a65898ce1049d0"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/financial/controller/FinancialController.java": {
+    "mtime": 1783754881.0111113,
+    "ast_hash": "0a38762f2c5f615270e70ebce70f84f3",
+    "semantic_hash": "0a38762f2c5f615270e70ebce70f84f3"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/financial/model/MovieFinancials.java": {
+    "mtime": 1783754881.0159366,
+    "ast_hash": "cfbec474a2f6b6d26051d2e30273f174",
+    "semantic_hash": "cfbec474a2f6b6d26051d2e30273f174"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/financial/model/WeeklyRevenue.java": {
+    "mtime": 1783754881.0159366,
+    "ast_hash": "10467b2c2ad721e7f7a1382f7d592d5a",
+    "semantic_hash": "10467b2c2ad721e7f7a1382f7d592d5a"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/financial/repository/FinancialRepository.java": {
+    "mtime": 1783754881.0177999,
+    "ast_hash": "c588a29f0e2cef7be3330b4323ac4d4f",
+    "semantic_hash": "c588a29f0e2cef7be3330b4323ac4d4f"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/financial/service/FinancialService.java": {
+    "mtime": 1783754881.0221274,
+    "ast_hash": "ef5893ebb5b61bd121d9788257d67b61",
+    "semantic_hash": "ef5893ebb5b61bd121d9788257d67b61"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/controller/MovieController.java": {
+    "mtime": 1783754881.025371,
+    "ast_hash": "0ed8326cb039a70cea20a2980b409cbd",
+    "semantic_hash": "0ed8326cb039a70cea20a2980b409cbd"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/dto/MovieSummaryDto.java": {
+    "mtime": 1783754881.025371,
+    "ast_hash": "7f9e2c47b42a5e2d29da6889b0c839b1",
+    "semantic_hash": "7f9e2c47b42a5e2d29da6889b0c839b1"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/dto/TopRatedMovieDto.java": {
+    "mtime": 1783754881.025371,
+    "ast_hash": "bfec7e627ea0e9441fd4fa95cee9aa0f",
+    "semantic_hash": "bfec7e627ea0e9441fd4fa95cee9aa0f"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/model/CastMember.java": {
+    "mtime": 1783754881.0275173,
+    "ast_hash": "26496cdb548baf54aa4a40f7ff35ae26",
+    "semantic_hash": "26496cdb548baf54aa4a40f7ff35ae26"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/model/CrewMember.java": {
+    "mtime": 1783754881.0280595,
+    "ast_hash": "f51d3855fb2d5683a299858796610517",
+    "semantic_hash": "f51d3855fb2d5683a299858796610517"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/model/Genre.java": {
+    "mtime": 1783754881.0290694,
+    "ast_hash": "5d5d2a4878a91499bebc8db2c965b80f",
+    "semantic_hash": "5d5d2a4878a91499bebc8db2c965b80f"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/model/Movie.java": {
+    "mtime": 1783754881.0299726,
+    "ast_hash": "03a386a68143d921b17525b6b9976a7e",
+    "semantic_hash": "03a386a68143d921b17525b6b9976a7e"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/model/MovieStatus.java": {
+    "mtime": 1783754881.030818,
+    "ast_hash": "7e177c4606577ab899a897b28edc1a2c",
+    "semantic_hash": "7e177c4606577ab899a897b28edc1a2c"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/repository/MovieRepository.java": {
+    "mtime": 1783754881.031422,
+    "ast_hash": "02e5291d34e270ad44153bbf428c29ab",
+    "semantic_hash": "02e5291d34e270ad44153bbf428c29ab"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/movie/service/MovieService.java": {
+    "mtime": 1783754881.033926,
+    "ast_hash": "0341692a0b6d424383d7831d6e8180ac",
+    "semantic_hash": "0341692a0b6d424383d7831d6e8180ac"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/rating/controller/RatingController.java": {
+    "mtime": 1783754881.033926,
+    "ast_hash": "520c97a022ae08403b6e24a34f6cc834",
+    "semantic_hash": "520c97a022ae08403b6e24a34f6cc834"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/rating/dto/RatingRequest.java": {
+    "mtime": 1783754881.0359366,
+    "ast_hash": "7e942d5685bb11c0d071602d302bff58",
+    "semantic_hash": "7e942d5685bb11c0d071602d302bff58"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/rating/model/Rating.java": {
+    "mtime": 1783754881.0359366,
+    "ast_hash": "56633ffe04a651fa2fc58d9dcc19de14",
+    "semantic_hash": "56633ffe04a651fa2fc58d9dcc19de14"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/rating/model/RatingSummary.java": {
+    "mtime": 1783754881.0359366,
+    "ast_hash": "d61d4a2f7400be69622b6cd545ee92f9",
+    "semantic_hash": "d61d4a2f7400be69622b6cd545ee92f9"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/rating/repository/RatingRepository.java": {
+    "mtime": 1783754881.0359366,
+    "ast_hash": "9942c2746a1a44a056104e2aa8af1013",
+    "semantic_hash": "9942c2746a1a44a056104e2aa8af1013"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/rating/service/RatingService.java": {
+    "mtime": 1783754881.0359366,
+    "ast_hash": "65f5eaa7392dce6323323f30fe9a1d4b",
+    "semantic_hash": "65f5eaa7392dce6323323f30fe9a1d4b"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/recognition/controller/RecognitionController.java": {
+    "mtime": 1783754881.0359366,
+    "ast_hash": "00387d80e57efff8f8ccf9ccec8ba247",
+    "semantic_hash": "00387d80e57efff8f8ccf9ccec8ba247"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/recognition/model/Award.java": {
+    "mtime": 1783754881.042444,
+    "ast_hash": "878c52ae8f14fc93cd0f9a1413b7d517",
+    "semantic_hash": "878c52ae8f14fc93cd0f9a1413b7d517"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/recognition/model/AwardLeaderResponse.java": {
+    "mtime": 1783754881.042444,
+    "ast_hash": "6969de1eeb2f82dec2e8ebe8d5f0fddf",
+    "semantic_hash": "6969de1eeb2f82dec2e8ebe8d5f0fddf"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/recognition/model/AwardSummary.java": {
+    "mtime": 1783754881.042444,
+    "ast_hash": "2c88ac4ddb705ad1a99f72a7fb1c4c65",
+    "semantic_hash": "2c88ac4ddb705ad1a99f72a7fb1c4c65"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/recognition/repository/AwardRepository.java": {
+    "mtime": 1783754881.042444,
+    "ast_hash": "30ee5f7c6c3565376b077d902a881436",
+    "semantic_hash": "30ee5f7c6c3565376b077d902a881436"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/recognition/service/RecognitionService.java": {
+    "mtime": 1783754881.0466645,
+    "ast_hash": "03a9470e1597a0d620111274979e21b6",
+    "semantic_hash": "03a9470e1597a0d620111274979e21b6"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/snapshot/controller/SnapshotController.java": {
+    "mtime": 1783754881.0486732,
+    "ast_hash": "472006310b0e31a82c8241e886fc468b",
+    "semantic_hash": "472006310b0e31a82c8241e886fc468b"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/snapshot/model/Snapshot.java": {
+    "mtime": 1783754881.0506692,
+    "ast_hash": "ee18a628e729015a4483221ac0a17dc8",
+    "semantic_hash": "ee18a628e729015a4483221ac0a17dc8"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/snapshot/model/SnapshotCategory.java": {
+    "mtime": 1783754881.051965,
+    "ast_hash": "3b543d63ba065732accd16bb94463354",
+    "semantic_hash": "3b543d63ba065732accd16bb94463354"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/snapshot/repository/SnapshotRepository.java": {
+    "mtime": 1783754881.051965,
+    "ast_hash": "e7204f14bf4363d16b131793d552b78a",
+    "semantic_hash": "e7204f14bf4363d16b131793d552b78a"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/snapshot/service/SnapshotService.java": {
+    "mtime": 1783754881.0539854,
+    "ast_hash": "69215fdb222e9fa4dcd037d724d2a7d8",
+    "semantic_hash": "69215fdb222e9fa4dcd037d724d2a7d8"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/controller/TicketingController.java": {
+    "mtime": 1783754881.0539854,
+    "ast_hash": "deeb732dea8df6084cf20991ff7cf88e",
+    "semantic_hash": "deeb732dea8df6084cf20991ff7cf88e"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/dto/BookingRequest.java": {
+    "mtime": 1783754881.0539854,
+    "ast_hash": "cd286ae76d3df69493903e89465adff5",
+    "semantic_hash": "cd286ae76d3df69493903e89465adff5"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/dto/SeatAvailabilityDto.java": {
+    "mtime": 1783754881.0539854,
+    "ast_hash": "ad677402e4d557080f5183e29e624177",
+    "semantic_hash": "ad677402e4d557080f5183e29e624177"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/Booking.java": {
+    "mtime": 1783754881.0587125,
+    "ast_hash": "6ed1b798ebd1a0f435f749aef88600e9",
+    "semantic_hash": "6ed1b798ebd1a0f435f749aef88600e9"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/BookingStatus.java": {
+    "mtime": 1783754881.0587125,
+    "ast_hash": "3b14e987578f7cdc227a18450d8ef8ba",
+    "semantic_hash": "3b14e987578f7cdc227a18450d8ef8ba"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/Cinema.java": {
+    "mtime": 1783754881.0595863,
+    "ast_hash": "2fd48dcb5b208987c321b47659b695c8",
+    "semantic_hash": "2fd48dcb5b208987c321b47659b695c8"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/Screen.java": {
+    "mtime": 1783754881.0602045,
+    "ast_hash": "ef1b37a03359ac22c739aca559a0c932",
+    "semantic_hash": "ef1b37a03359ac22c739aca559a0c932"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/ScreenType.java": {
+    "mtime": 1783754881.0602045,
+    "ast_hash": "84c3c25799bce90874907ddf72a815b7",
+    "semantic_hash": "84c3c25799bce90874907ddf72a815b7"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/Showtime.java": {
+    "mtime": 1783754881.0612125,
+    "ast_hash": "d2841905a734a6ab709d0a47c20d3938",
+    "semantic_hash": "d2841905a734a6ab709d0a47c20d3938"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/model/ShowtimeStatus.java": {
+    "mtime": 1783754881.0612125,
+    "ast_hash": "4029792684e6d509e5df4743ef5a1d9a",
+    "semantic_hash": "4029792684e6d509e5df4743ef5a1d9a"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/repository/TicketingRepository.java": {
+    "mtime": 1783754881.0632257,
+    "ast_hash": "2159cee217d7d40b421609bfa97702a3",
+    "semantic_hash": "2159cee217d7d40b421609bfa97702a3"
+  },
+  "movieverse/movieverse/src/main/java/com/movieverse/ticketing/service/TicketingService.java": {
+    "mtime": 1783754881.0649612,
+    "ast_hash": "d135c8b0c1c8363413eda158fd0cadf5",
+    "semantic_hash": "d135c8b0c1c8363413eda158fd0cadf5"
+  },
+  "movieverse/movieverse/src/test/java/com/movieverse/MovieServiceTest.java": {
+    "mtime": 1783754881.06776,
+    "ast_hash": "f6820024684211ee5287b0bffea708e1",
+    "semantic_hash": "f6820024684211ee5287b0bffea708e1"
+  },
+  "movieverse/movieverse/src/test/java/com/movieverse/MovieVerseIntegrationTest.java": {
+    "mtime": 1783754881.06776,
+    "ast_hash": "f4a1229058f263308b6fc279e43c2961",
+    "semantic_hash": "f4a1229058f263308b6fc279e43c2961"
+  },
+  "movieverse/movieverse/src/test/java/com/movieverse/RatingServiceTest.java": {
+    "mtime": 1783754881.0701914,
+    "ast_hash": "a1aeb2d233abbb34011689257fccb4bd",
+    "semantic_hash": "a1aeb2d233abbb34011689257fccb4bd"
+  },
+  "movieverse/movieverse/src/test/java/com/movieverse/TicketingServiceTest.java": {
+    "mtime": 1783754881.071121,
+    "ast_hash": "325cedc9cea33118cf49d5630a3911ec",
+    "semantic_hash": "325cedc9cea33118cf49d5630a3911ec"
+  },
+  "movieverse/movieverse/src/test/java/com/movieverse/recognition/RecognitionControllerTest.java": {
+    "mtime": 1783754881.0716524,
+    "ast_hash": "498acf03ae9cfbd6180960cc0cebb432",
+    "semantic_hash": "498acf03ae9cfbd6180960cc0cebb432"
+  },
+  "movieverse/movieverse/src/test/java/com/movieverse/recognition/RecognitionServiceTest.java": {
+    "mtime": 1783754881.0728605,
+    "ast_hash": "a0f1f95d4b860f35d50206758f0f392d",
+    "semantic_hash": "a0f1f95d4b860f35d50206758f0f392d"
+  },
+  "specs/001-movie-awards-endpoint/contracts/award-leader-response.json": {
+    "mtime": 1783754881.0888953,
+    "ast_hash": "5a5f7000ab2d438135bc536648ba9367",
+    "semantic_hash": "5a5f7000ab2d438135bc536648ba9367"
+  },
+  "test-manifest.json": {
+    "mtime": 1783754881.0967162,
+    "ast_hash": "fecc16a09cc357697116d151e0fcc3b1",
+    "semantic_hash": "fecc16a09cc357697116d151e0fcc3b1"
+  }
+}

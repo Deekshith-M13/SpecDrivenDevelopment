@@ -1,7 +1,7 @@
 target/
 *.class
 *.jar
-graphify-out/
+graphify-out/cache/
 node_modules/
 llmlingua-middleware/__pycache__/
 .vscode/
