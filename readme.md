@@ -101,7 +101,13 @@ Follow these steps to install and use GitHub Spec Kit in this repository:
    - Install GitHub Copilot Chat
 
 2. Install Spec Kit using the official installation guide for your platform.
-   - Verify the installation by running the help command provided in the guide.
+   - Windows PowerShell:
+
+     uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.12.11
+
+   - Verify the installation:
+
+     specify --help
 
 3. Open the repository in VS Code.
    - Make sure the workspace root is the repository folder.
@@ -132,7 +138,14 @@ OpenSpec
 OpenSpec works alongside GitHub Spec Kit to turn approved specifications into implementation changes.
 
 1. Install OpenSpec using the official package or release for your operating system.
+   - Windows PowerShell:
+
+     npm install -g @fission-ai/openspec@latest
+
 2. Open the repository root in your terminal.
+3. Verify the installation:
+
+   openspec --help
 3. Initialize or run OpenSpec from the repository root so it can read the existing spec files.
 4. Create a proposal for the change you want to implement.
 5. Review the proposed changes and confirm the scope.
@@ -158,10 +171,14 @@ Graphify
 Graphify helps create a structural code map for the repository.
 
 1. Install Graphify from the official installation instructions.
+   - Windows PowerShell:
+
+     pip install graphify
+
 2. Verify the installation:
-      graphify --help
+      python -m graphify --help
 3. From the repository root, generate the initial graph:
-      graphify . --code-only --no-llm
+      python -m graphify . --code-only --no-llm
 4. Review the generated output files, including:
    - GRAPH_REPORT.md
    - structural dependency graph
@@ -177,7 +194,8 @@ The custom MCP server exposes Graphify functionality to GitHub Copilot as reusab
 
 1. Change to the MCP server directory:
       cd mcp-server
-2. Install the Node.js dependencies:
+2. Install the MCP SDK and other Node.js dependencies:
+      npm install @modelcontextprotocol/sdk
       npm install
 3. Start the MCP server:
       npm start
